@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI콘텐츠 활용이 막막한 사람들을 위한 필독서 (강의용)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:hsl(222,47%,6%);
+    --sidebar-bg:hsl(222,40%,9%);
+    --text:hsl(0,0%,95%);
+    --text-sub:hsl(215,20%,70%);
+    --text-muted:hsl(215,12%,50%);
+    --accent:hsl(210,95%,60%);
+    --border:hsla(222,30%,25%,0.35);
+
+    --slide-bg:#fff;
+    --slide-text:#1a1a1a;
+    --slide-text-sub:#4a4a4a;
+    --slide-muted:#9a9a9a;
+    --slide-link:#3d7ad9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Noto Sans KR','Outfit',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    display:flex;min-height:100vh;
+  }
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:hsl(222,25%,22%);border-radius:5px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+  /* Sidebar */
+  .sidebar{
+    width:300px;background:var(--sidebar-bg);
+    border-right:1px solid var(--border);
+    position:fixed;top:0;bottom:0;left:0;
+    display:flex;flex-direction:column;z-index:100;
+    box-shadow:8px 0 30px rgba(0,0,0,0.35);
+  }
+  .brand{padding:22px 20px;border-bottom:1px solid var(--border)}
+  .brand-badge{
+    display:inline-block;font-size:10px;letter-spacing:0.15em;
+    color:var(--accent);background:hsla(210,95%,60%,0.12);
+    padding:4px 10px;border-radius:99px;margin-bottom:10px;font-weight:500;
+  }
+  .brand-title{font-size:15px;font-weight:700;line-height:1.4}
+  .brand-sub{font-size:11px;color:var(--text-muted);margin-top:6px}
+  .nav{flex:1;overflow-y:auto;padding:10px 10px 20px}
+  .nav-part{margin-top:14px}
+  .nav-part:first-child{margin-top:4px}
+  .part-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:8px 10px;font-size:10px;letter-spacing:0.18em;
+    font-weight:700;color:var(--accent);text-transform:uppercase;
+  }
+  .part-header .part-num{
+    font-family:'Outfit',sans-serif;background:hsla(210,95%,60%,0.15);
+    padding:2px 8px;border-radius:4px;font-weight:600;font-size:9px;
+  }
+  .nav-list{list-style:none}
+  .nav-item{
+    display:flex;align-items:center;gap:10px;padding:9px 10px;
+    border-radius:7px;color:var(--text-sub);font-size:13px;
+    cursor:pointer;transition:all 0.15s;border:1px solid transparent;
+    line-height:1.35;
+  }
+  .nav-item:hover{background:hsla(210,95%,60%,0.06);color:var(--text)}
+  .nav-item.active{
+    background:hsla(210,95%,60%,0.15);color:var(--text);
+    border-color:hsla(210,95%,60%,0.35);font-weight:500;
+  }
+  .nav-item .idx{
+    font-family:'Outfit',sans-serif;font-size:10px;
+    color:var(--text-muted);min-width:22px;
+  }
+  .nav-item.active .idx{color:var(--accent)}
+
+  /* Main - slide viewport */
+  .main{
+    margin-left:300px;flex:1;padding:32px;
+    min-height:100vh;
+  }
+  #content{
+    width:100%;max-width:1280px;margin:0 auto;
+  }
+  .slide{
+    width:100%;aspect-ratio:16/9;
+    background:var(--slide-bg);color:var(--slide-text);
+    border-radius:14px;overflow:hidden;position:relative;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    font-family:'Noto Sans KR',sans-serif;
+  }
+  .slide-inner{
+    position:absolute;inset:0;padding:60px 70px;
+    display:flex;flex-direction:column;
+  }
+  .slide-footer{
+    position:absolute;left:70px;right:70px;bottom:26px;
+    display:flex;gap:32px;
+    font-size:11px;color:var(--slide-muted);font-weight:500;
+  }
+
+  /* Editable text */
+  .edit{
+    outline:none;cursor:text;
+    border:1px dashed transparent;border-radius:4px;
+    padding:2px 6px;margin:-2px -6px;
+    transition:background 0.12s,border-color 0.12s;
+  }
+  .edit:hover{background:hsla(210,95%,60%,0.06);border-color:hsla(210,95%,60%,0.3)}
+  .edit:focus{background:hsla(210,95%,60%,0.1);border:1px solid var(--accent)}
+
+  /* Cover slides */
+  .slide.cover-slide{background:linear-gradient(135deg,#0a1a3d 0%,#1e3a8a 40%,#4a5fb8 75%,#c5b9ce 100%)}
+  .slide.cover-slide::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 30% 40%,transparent 0%,rgba(0,0,0,0.15) 100%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='3'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/></svg>");
+  }
+  .cover-kicker{
+    font-family:'Outfit',sans-serif;font-weight:800;
+    font-size:5.5vw;letter-spacing:-0.02em;
+    color:rgba(255,255,255,0.15);
+    position:absolute;top:6vw;left:70px;right:0;line-height:1;
+    white-space:nowrap;overflow:hidden;
+  }
+  .cover-title{
+    position:relative;color:#fff;font-weight:800;
+    font-size:44px;line-height:1.3;margin-top:auto;
+  }
+  .cover-sub{
+    position:relative;color:rgba(255,255,255,0.85);
+    font-size:15px;margin-top:16px;letter-spacing:0.03em;
+  }
+  .cover-logo{
+    position:absolute;bottom:40px;left:70px;
+    display:flex;align-items:center;gap:10px;
+    color:#fff;font-size:20px;font-weight:600;
+  }
+  .cover-logo::before{
+    content:"";width:22px;height:22px;background:#fff;
+    border-radius:5px;transform:rotate(20deg);
+  }
+
+  /* Part cover */
+  .part-cover.p1{background:linear-gradient(135deg,#0a1414 0%,#1a3d2b 50%,#88a642 100%)}
+  .part-cover.p2{background:linear-gradient(135deg,#0d1c1e 0%,#1a4a52 50%,#4dd0ba 100%)}
+  .part-cover.p3{background:linear-gradient(135deg,#0f0d1e 0%,#2a1f52 50%,#9e6dc2 100%)}
+  .part-num-big{
+    font-family:'Outfit',sans-serif;font-weight:800;
+    color:rgba(255,255,255,0.25);font-size:64px;line-height:1;
+    position:absolute;top:60px;left:70px;letter-spacing:-0.02em;
+  }
+  .part-title-big{
+    position:absolute;bottom:120px;left:70px;
+    color:#fff;font-weight:800;font-size:78px;line-height:1;
+  }
+  .part-desc{
+    position:absolute;bottom:70px;left:70px;
+    color:rgba(255,255,255,0.85);font-size:15px;
+  }
+
+  /* Common page heading */
+  .page-h1{
+    font-size:34px;font-weight:800;line-height:1.25;
+    margin-bottom:14px;
+  }
+  .page-kicker{
+    font-family:'Outfit',sans-serif;
+    color:#d3d3d3;font-weight:800;font-size:48px;
+    letter-spacing:-0.02em;line-height:1;margin-bottom:24px;
+  }
+  .page-h2{font-size:22px;font-weight:700;margin-bottom:14px}
+  .page-p{font-size:14.5px;line-height:1.75;color:var(--slide-text);margin-bottom:12px}
+  .page-p.muted{color:var(--slide-text-sub)}
+  .page-p.small{font-size:13px}
+  .link-blue{color:var(--slide-link);font-weight:600}
+
+  ul.dots{list-style:none;margin:8px 0}
+  ul.dots li{position:relative;padding-left:16px;line-height:1.75;font-size:14.5px;margin-bottom:4px}
+  ul.dots li::before{content:"·";position:absolute;left:4px;font-weight:900}
+  ol.nums{padding-left:22px;line-height:1.75;font-size:14.5px}
+  ol.nums li{margin-bottom:4px}
+
+  /* Two column layout (title left, content right) */
+  .two-col{display:grid;grid-template-columns:1fr 1.15fr;gap:60px;flex:1;align-items:flex-start}
+  .two-col.center-left{align-items:center}
+  .two-col-left h1{font-size:52px;font-weight:800;line-height:1.15}
+  .two-col-right{font-size:14.5px;line-height:1.75}
+  .two-col-right h3{font-size:17px;font-weight:700;margin-bottom:14px}
+
+  /* Image grids */
+  .img-2x2{display:grid;grid-template-columns:1fr 1fr;gap:8px;height:100%}
+  .img-2x2 img{width:100%;height:100%;object-fit:cover;border-radius:4px;background:#eee}
+
+  /* Case layout */
+  .case-layout{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;flex:1;align-items:center}
+  .case-main-img{width:100%;height:auto;max-height:520px;object-fit:contain;background:#f7f7f7;border-radius:4px}
+  .case-body h3{font-size:22px;font-weight:800;margin-bottom:14px}
+  .case-body .kv{font-size:14px;margin-bottom:10px;color:var(--slide-text)}
+  .case-body .kv b{font-weight:700}
+  .case-body h4{font-size:14.5px;font-weight:700;margin:16px 0 8px}
+  .case-body .refs{display:flex;gap:8px;margin:8px 0 12px}
+  .case-body .refs img{width:100px;height:100px;object-fit:cover;border-radius:4px;background:#f2f2f2}
+  .case-body p.prompt-user{font-size:13px;line-height:1.7;color:#4a4a4a}
+  .case-body p.prompt-ai{font-size:12.5px;line-height:1.65;color:#4a4a4a}
+
+  /* Terms 4-col */
+  .terms-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:36px 30px;flex:1;align-content:center;margin-top:12px}
+  .term h4{font-size:14.5px;font-weight:800;margin-bottom:8px}
+  .term p{font-size:12.5px;line-height:1.65;color:var(--slide-text-sub)}
+
+  /* Models 4-col */
+  .models-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;flex:1;margin-top:20px}
+  .model-col h4{font-size:14.5px;font-weight:700;margin-bottom:20px}
+  .model-col ul{list-style:none}
+  .model-col li{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:14px}
+  .model-col .m-ico{
+    width:22px;height:22px;border-radius:5px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-family:'Outfit',sans-serif;font-weight:700;font-size:11px;
+    background:#f0f0f0;color:#333;flex-shrink:0;
+  }
+  .m-ico.g{background:linear-gradient(135deg,#4285f4,#ea4335,#fbbc05,#34a853);color:#fff}
+  .m-ico.o{background:#000;color:#fff}
+  .m-ico.x{background:#000;color:#fff}
+  .m-ico.c{background:#d97757;color:#fff}
+  .m-ico.s{background:linear-gradient(135deg,#3ab5b0,#5aca8d);color:#fff}
+  .m-ico.mj{background:#000;color:#fff}
+  .m-ico.f{background:#000;color:#fff}
+  .m-ico.k{background:linear-gradient(135deg,#5ec4d1,#7a8ce8);color:#fff}
+  .m-ico.r{background:#000;color:#fff}
+  .m-ico.px{background:linear-gradient(135deg,#a459f7,#f2506d);color:#fff}
+  .m-ico.su{background:#000;color:#fff}
+  .m-ico.el{background:#000;color:#fff}
+
+  /* Company case slide */
+  .company-layout{display:grid;grid-template-columns:1fr 1.05fr;gap:50px;flex:1;align-items:stretch;min-height:0}
+  .company-body{overflow:hidden}
+  .company-body h1{font-size:26px;font-weight:800;margin-bottom:18px}
+  .company-body .quote{font-size:15px;font-weight:700;margin-bottom:14px}
+  .company-body p{font-size:13.5px;line-height:1.75;margin-bottom:12px;color:var(--slide-text)}
+  .company-imgs{display:grid;gap:10px;height:100%;min-height:0}
+  .company-imgs.g1{grid-template-columns:1fr;grid-template-rows:1fr}
+  .company-imgs.g2{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+  .company-imgs.g3{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+  .company-imgs.g3 > :first-child{grid-column:1/3}
+  .company-imgs.g-lside{grid-template-columns:1.15fr 1fr;grid-template-rows:1fr 1fr}
+  .company-imgs.g-lside > :first-child{grid-row:1/3}
+  .company-imgs.g-stack{grid-template-columns:1fr;grid-template-rows:1fr 1fr 1fr}
+  .company-imgs.g4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+  .company-imgs img{width:100%;height:100%;object-fit:contain;border-radius:6px;background:#f5f5f5;min-height:0}
+
+  /* Prompt structure */
+  .prompt-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px 60px;flex:1;align-content:center;margin-top:20px}
+  .prompt-box h4{font-size:16px;font-weight:800;margin-bottom:14px}
+  .prompt-box .row{font-size:13px;line-height:1.7;color:var(--slide-text);margin-bottom:6px;position:relative;padding-left:14px}
+  .prompt-box .row::before{content:"·";position:absolute;left:2px;font-weight:900}
+  .prompt-box .row.eg{color:var(--slide-text-sub)}
+
+  /* Callout / Growth closing */
+  .growth-slide{background:linear-gradient(135deg,#0a1428 0%,#101d3a 60%,#1b2851 100%);color:#fff}
+  .growth-title{text-align:center;font-size:34px;font-weight:800;margin-bottom:32px;color:#fff}
+  .growth-body{max-width:820px;margin:0 auto;font-size:14.5px;line-height:1.85;color:rgba(255,255,255,0.92)}
+  .growth-body strong{color:#fff}
+  .growth-cta{
+    display:inline-block;margin-top:28px;padding:12px 34px;
+    background:var(--accent);color:#fff;border-radius:99px;
+    font-weight:600;font-size:14px;text-decoration:none;
+  }
+
+  /* End slide */
+  .end-slide{background:linear-gradient(135deg,#0a1a3d 0%,#1e3a8a 45%,#c5b9ce 100%);color:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column}
+  .end-slide .logo{
+    display:flex;align-items:center;gap:14px;
+    font-size:44px;font-weight:600;color:#fff;
+  }
+  .end-slide .logo::before{
+    content:"";width:44px;height:44px;background:#fff;
+    border-radius:9px;transform:rotate(20deg);
+  }
+  .end-slide .tag{margin-top:10px;font-size:17px;color:rgba(255,255,255,0.85);font-weight:400}
+  .end-slide .copyright{position:absolute;bottom:40px;left:0;right:0;text-align:center;font-size:11px;color:rgba(255,255,255,0.6);line-height:1.6}
+
+  /* Menu toggle for mobile */
+  .menu-toggle{display:none}
+  @media(max-width:900px){
+    .sidebar{transform:translateX(-100%);transition:transform 0.3s}
+    .sidebar.open{transform:translateX(0)}
+    .main{margin-left:0;padding:16px}
+    .menu-toggle{
+      display:block;position:fixed;top:12px;left:12px;z-index:150;
+      background:var(--sidebar-bg);color:#fff;border:1px solid var(--border);
+      padding:8px 12px;border-radius:6px;cursor:pointer;
+    }
+    .slide{aspect-ratio:auto;min-height:auto}
+    .slide-inner{position:relative;padding:32px 28px}
+    .cover-title,.part-title-big{font-size:32px}
+    .part-num-big{font-size:36px;position:relative;top:auto;left:auto;margin-bottom:20px}
+    .part-title-big,.part-desc{position:relative;bottom:auto;left:auto}
+    .two-col,.case-layout,.company-layout,.prompt-grid,.terms-grid,.models-grid{grid-template-columns:1fr;gap:24px}
+    .terms-grid,.models-grid{grid-template-columns:repeat(2,1fr)}
+    .cover-kicker{position:relative;top:auto;left:auto;font-size:24px;margin-bottom:20px}
+    .cover-title{margin-top:0}
+    .slide-footer{position:relative;left:auto;right:auto;bottom:auto;margin-top:20px}
+  }
+</style>
+</head>
+<body>
+<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<aside class="sidebar">
+  <div class="brand">
+    <span class="brand-badge">강의용 · 편집가능</span>
+    <div class="brand-title">AI콘텐츠 활용이 막막한<br>사람들을 위한 필독서</div>
+    <div class="brand-sub">기본 개념 · 모델 비교 · 프롬프트 · 기업 사례</div>
+  </div>
+  <nav class="nav" id="nav"></nav>
+</aside>
+
+<main class="main"><div id="content"></div></main>
+
+<script>
+const IMG = '필독서_assets/';
+const F = '<div class="slide-footer"><span>AI콘텐츠 활용이 막막한 사람들을 위한 필독서</span><span>{PART}</span></div>';
+
+const SLIDES = [
+/* ==================== OVERVIEW ==================== */
+{id:'cover',part:0,label:'표지',html:`
+  <div class="slide cover-slide"><div class="slide-inner">
+    <div class="cover-kicker" contenteditable="true">AI Content Made Easy</div>
+    <div style="margin-top:auto">
+      <div class="cover-title edit" contenteditable="true">AI콘텐츠 활용이 막막한<br>사람들을 위한 필독서</div>
+      <div class="cover-sub edit" contenteditable="true">기본 개념 · 주요 모델 비교 · 프롬프트 사례집 · 기업 사례</div>
+    </div>
+  </div></div>`},
+
+{id:'overview',part:0,label:'Overview · 들어가며',html:`
+  <div class="slide"><div class="slide-inner">
+    <div class="page-kicker" contenteditable="true">Overview</div>
+    <div class="two-col">
+      <div class="two-col-left"><h1 class="edit" contenteditable="true">들어가며</h1></div>
+      <div class="two-col-right">
+        <h3 class="edit" contenteditable="true">"창작에만 집중할 수 있도록"</h3>
+        <p class="page-p edit" contenteditable="true">AI 트렌드는 너무 빠르게 변합니다. 자고 일어나면 새로운 모델과 기능, 그리고 '이거 미쳤습니다'라고 말하는 콘텐츠가 쏟아지죠.</p>
+        <p class="page-p edit" contenteditable="true">많은 사람들이 AI를 활용해보기도 전에 압도적인 정보량에 피로감을 느끼고 있습니다.</p>
+        <p class="page-p edit" contenteditable="true"><b>수백 명의 마케터와 디자이너로부터 가장 많이 받은 질문의 답을 한데 모았습니다.</b></p>
+        <ol class="nums" style="margin:6px 0 12px 4px">
+          <li class="edit" contenteditable="true">어떤 AI 모델이 가장 좋나요?</li>
+          <li class="edit" contenteditable="true">프롬프트는 어떻게 작성해야 하나요?</li>
+          <li class="edit" contenteditable="true">우리 회사가 참고할 만한 활용 사례가 있나요?</li>
+        </ol>
+        <p class="page-p edit" contenteditable="true">어떤 초심자도 이 문서 하나만 보고, 바로 필요한 콘텐츠를 제작해볼 수 있기를 바랍니다.</p>
+      </div>
+    </div>
+  </div></div>`},
+
+{id:'agenda',part:0,label:'Agenda · 목차',html:`
+  <div class="slide"><div class="slide-inner">
+    <div class="page-kicker" contenteditable="true" style="margin-bottom:14px">Agenda</div>
+    <div class="two-col center-left" style="gap:50px">
+      <div class="two-col-left"><h1 class="edit" contenteditable="true">목차</h1></div>
+      <div class="two-col-right" style="font-size:13px">
+        <div style="margin-bottom:12px;border-bottom:1px solid #ddd;padding-bottom:8px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <h3 class="edit" contenteditable="true" style="font-size:15px">이해하기</h3>
+            <span style="color:var(--slide-muted);font-size:12px">Part 1</span>
+          </div>
+          <ul class="dots" style="margin:2px 0">
+            <li class="edit" contenteditable="true" style="font-size:13px;line-height:1.55;margin-bottom:1px">원활한 소통을 위한 기초 용어</li>
+            <li class="edit" contenteditable="true" style="font-size:13px;line-height:1.55;margin-bottom:1px">주요 AI모델 한눈에 보기</li>
+            <li class="edit" contenteditable="true" style="font-size:13px;line-height:1.55;margin-bottom:1px">어떤 모델이 제일 좋은가요?</li>
+            <li class="edit" contenteditable="true" style="font-size:13px;line-height:1.55;margin-bottom:1px">일관성은 어떻게 유지하나요?</li>
+            <li class="edit" contenteditable="true" style="font-size:13px;line-height:1.55;margin-bottom:1px">긴 영상은 어떻게 만드나요?</li>
+          </ul>
+        </div>
+        <div style="margin-bottom:12px;border-bottom:1px solid #ddd;padding-bottom:8px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <h3 class="edit" contenteditable="true" style="font-size:15px">따라하기</h3>
+            <span style="color:var(--slide-muted);font-size:12px">Part 2</span>
+          </div>
+          <ul class="dots" style="margin:2px 0">
+            <li class="edit" contenteditable="true" style="font-size:13px;line-height:1.55;margin-bottom:1px">기본 프롬프트 구조</li>
+            <li class="edit" contenteditable="true" style="font-size:13px;line-height:1.55;margin-bottom:1px">프롬프트 작성 팁이 있나요?</li>
+            <li class="edit" contenteditable="true" style="font-size:13px;line-height:1.55;margin-bottom:1px">프롬프트 사례집</li>
+          </ul>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <h3 class="edit" contenteditable="true" style="font-size:15px">도입하기</h3>
+            <span style="color:var(--slide-muted);font-size:12px">Part 3</span>
+          </div>
+          <ul class="dots" style="margin:2px 0">
+            <li class="edit" contenteditable="true" style="font-size:13px;line-height:1.55;margin-bottom:1px">[서비스] LGU+</li>
+            <li class="edit" contenteditable="true" style="font-size:13px;line-height:1.55;margin-bottom:1px">[제품] 아가방앤컴퍼니</li>
+            <li class="edit" contenteditable="true" style="font-size:13px;line-height:1.55;margin-bottom:1px">[공공기관] 부산광역시</li>
+            <li class="edit" contenteditable="true" style="font-size:13px;line-height:1.55;margin-bottom:1px">[콘텐츠] 책고래 출판사</li>
+            <li class="edit" contenteditable="true" style="font-size:13px;line-height:1.55;margin-bottom:1px">[교육] 동아방송예술대학교 & 서강대학교</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div></div>`},
+
+/* ==================== PART 1 ==================== */
+{id:'part1-cover',part:1,label:'▶ Part 1 시작',html:`
+  <div class="slide part-cover p1"><div class="slide-inner">
+    <div class="part-num-big" contenteditable="true">Part 1.</div>
+    <div class="part-title-big edit" contenteditable="true">이해하기</div>
+    <div class="part-desc edit" contenteditable="true">AI콘텐츠 제작을 위한 기초 개념과 주요 AI모델을 살펴봅니다.</div>
+  </div></div>`},
+
+{id:'terms',part:1,label:'원활한 소통을 위한 기초 용어',html:`
+  <div class="slide"><div class="slide-inner">
+    <h1 class="page-h1 edit" contenteditable="true">원활한 소통을 위한 기초 용어</h1>
+    <div class="terms-grid">
+      <div class="term"><h4 class="edit" contenteditable="true">T2I (Text to Image)</h4><p class="edit" contenteditable="true">텍스트 프롬프트만으로 이미지를 생성하는 방식입니다. 모델마다 그림체가 달라, 다양하게 활용해보는 것이 좋습니다.</p></div>
+      <div class="term"><h4 class="edit" contenteditable="true">I2I (Image to Image)</h4><p class="edit" contenteditable="true">이미지 인풋(레퍼런스)를 기반으로 이미지를 생성하는 방식입니다. 제품, 캐릭터, 배경, 스타일 등의 일관성을 유지하는 데 이용합니다.</p></div>
+      <div class="term"><h4 class="edit" contenteditable="true">T2V (Text to Video)</h4><p class="edit" contenteditable="true">텍스트 프롬프트만으로 영상을 생성하는 방식입니다. 비주얼을 제어할 수 없어 주로 이용하지 않습니다.</p></div>
+      <div class="term"><h4 class="edit" contenteditable="true">I2V (Image to Video)</h4><p class="edit" contenteditable="true">이미지를 움직이게 하는 방식으로, 주로 이용하는 생성 방식입니다. 장편의 영상을 만들 때는 컷별 이미지를 먼저 제작하고, I2V로 영상화한 다음, 편집 과정을 거칩니다.</p></div>
+      <div class="term"><h4 class="edit" contenteditable="true">키프레임</h4><p class="edit" contenteditable="true">I2V의 일종으로, 첫 프레임과 마지막 프레임 이미지 2장을 인풋으로 넣어, 영상을 만드는 방식을 의미합니다. 의도를 가장 잘 구현할 수 있습니다.</p></div>
+      <div class="term"><h4 class="edit" contenteditable="true">R2V (Reference to Video)</h4><p class="edit" contenteditable="true">가장 최신 방식으로 등장인물, 캐릭터, 장소, 음성 등의 인풋을 일관되게 유지하면서 멀티컷을 한번에 생성할 수 있습니다. 첫 프레임을 제작할 필요 없고, 가장 자연스럽다는 장점이 있습니다.</p></div>
+      <div class="term"><h4 class="edit" contenteditable="true">네이티브 오디오</h4><p class="edit" contenteditable="true">오디오가 동시에 생성되어 높은 싱크로율을 보이는 영상 모델 기술을 의미합니다. 구글 Veo3가 처음 선보였으며, 최신 영상 모델들은 모두 탑재하고 있는 추세입니다.</p></div>
+      <div class="term"><h4 class="edit" contenteditable="true">TTS (Text to Speech)</h4><p class="edit" contenteditable="true">텍스트를 음성으로 변환하는 기술을 의미합니다. 네이티브 오디오 전에는 TTS로 오디오를 생성한 후, 립싱크에 특화된 I2V 모델을 활용하는 방식으로 대화를 연출했습니다.</p></div>
+    </div>
+    ${F.replace('{PART}','Part 1.  이해하기')}
+  </div></div>`},
+
+{id:'models',part:1,label:'주요 AI모델 한눈에 보기',html:`
+  <div class="slide"><div class="slide-inner">
+    <h1 class="page-h1 edit" contenteditable="true">주요 AI모델 한눈에 보기</h1>
+    <div class="models-grid">
+      <div class="model-col"><h4 class="edit" contenteditable="true">텍스트 (LLM)</h4><ul>
+        <li><span class="m-ico g">G</span><span class="edit" contenteditable="true">Gemini</span></li>
+        <li><span class="m-ico o">O</span><span class="edit" contenteditable="true">GPT</span></li>
+        <li><span class="m-ico x">𝕏</span><span class="edit" contenteditable="true">Grok</span></li>
+        <li><span class="m-ico c">✱</span><span class="edit" contenteditable="true">Claude</span></li>
+      </ul></div>
+      <div class="model-col"><h4 class="edit" contenteditable="true">이미지</h4><ul>
+        <li><span class="m-ico g">G</span><span class="edit" contenteditable="true">Nano Banana</span></li>
+        <li><span class="m-ico o">O</span><span class="edit" contenteditable="true">GPT Image</span></li>
+        <li><span class="m-ico x">𝕏</span><span class="edit" contenteditable="true">Grok Imagine</span></li>
+        <li><span class="m-ico s">S</span><span class="edit" contenteditable="true">Seedream</span></li>
+        <li><span class="m-ico mj">⛵</span><span class="edit" contenteditable="true">Midjourney</span></li>
+        <li><span class="m-ico f">△</span><span class="edit" contenteditable="true">Flux</span></li>
+      </ul></div>
+      <div class="model-col"><h4 class="edit" contenteditable="true">영상</h4><ul>
+        <li><span class="m-ico g">G</span><span class="edit" contenteditable="true">Veo</span></li>
+        <li><span class="m-ico o">O</span><span class="edit" contenteditable="true">Sora (종료)</span></li>
+        <li><span class="m-ico x">𝕏</span><span class="edit" contenteditable="true">Grok Imagine</span></li>
+        <li><span class="m-ico s">S</span><span class="edit" contenteditable="true">Seedance</span></li>
+        <li><span class="m-ico k">K</span><span class="edit" contenteditable="true">Kling</span></li>
+        <li><span class="m-ico r">R</span><span class="edit" contenteditable="true">Runway</span></li>
+        <li><span class="m-ico px">P</span><span class="edit" contenteditable="true">Pixverse</span></li>
+      </ul></div>
+      <div class="model-col"><h4 class="edit" contenteditable="true">오디오</h4><ul>
+        <li><span class="m-ico su">S</span><span class="edit" contenteditable="true">Suno</span></li>
+        <li><span class="m-ico el">ll</span><span class="edit" contenteditable="true">Elevenlabs</span></li>
+      </ul></div>
+    </div>
+    ${F.replace('{PART}','Part 1.  이해하기')}
+  </div></div>`},
+
+{id:'best-model',part:1,label:'FAQ · 어떤 모델이 제일 좋나요?',html:`
+  <div class="slide"><div class="slide-inner">
+    <div class="page-kicker" contenteditable="true">FAQ</div>
+    <div class="two-col">
+      <div class="two-col-left">
+        <h1 class="edit" contenteditable="true" style="font-size:36px">어떤 모델이 제일 좋은가요?</h1>
+        <p class="link-blue edit" contenteditable="true" style="margin-top:14px;font-size:14px">생성형AI 순위 참고 사이트: Hugging Face Leaderboard</p>
+      </div>
+      <div class="two-col-right">
+        <h3 class="edit" contenteditable="true">"상황에 따라 다릅니다"</h3>
+        <p class="page-p edit" contenteditable="true">이미지와 영상 모두 절대적으로 좋은 모델을 뽑기 어려운 이유는 다음과 같습니다.</p>
+        <ul class="dots" style="margin:8px 0 12px 0">
+          <li class="edit" contenteditable="true"><b>강점이 다르기 때문입니다.</b> 예를 들어, A 연출이 Kling에서는 안 되는데, Seedance에서는 되고, 반대로 B 연출은 Kling에서 더 잘 구현되는 경우가 많습니다.</li>
+          <li class="edit" contenteditable="true"><b>기술이 매우 빠르게 발전하기 때문입니다.</b> 25년 상반기에 영상 AI는 거의 Runway만 알려져 있었지만, 현재는 더 성능이 좋다고 평가되는 모델들이 많습니다.</li>
+        </ul>
+        <p class="page-p edit" contenteditable="true"><b>따라서, 매 작업마다 여러개의 모델로 시안을 제작한 후 가장 마음에 드는 결과물을 선택하는 방식이 가장 좋습니다.</b> 대안으로는 연출별 주로 사용하는 모델을 정해두고, 특정 연출이 잘 안 될 때 다른 모델을 시험해보는 것을 고려할 수 있습니다.</p>
+        <p class="page-p edit" contenteditable="true"><b>다음 슬라이드에서 T2I 결과물을 비교해보세요.</b></p>
+      </div>
+    </div>
+    ${F.replace('{PART}','Part 1.  이해하기')}
+  </div></div>`},
+
+{id:'t2i-case1',part:1,label:'T2I 비교 · 한국인 여성 셀카',html:`
+  <div class="slide"><div class="slide-inner">
+    <h1 class="page-h1 edit" contenteditable="true">이미지 모델 결과물 비교 (T2I)</h1>
+    <div class="case-layout">
+      <div class="img-2x2" style="max-width:520px">
+        <img src="${IMG}img-008-042.png" alt="NanoBanana Pro">
+        <img src="${IMG}img-008-044.png" alt="Seedream">
+        <img src="${IMG}img-008-048.png" alt="Midjourney">
+        <img src="${IMG}img-008-046.png" alt="GPT Image">
+      </div>
+      <div class="case-body">
+        <h3 class="edit" contenteditable="true">Case 1. 한국인 여성 셀카</h3>
+        <p class="edit" contenteditable="true" style="font-size:13.5px;line-height:1.75;color:var(--slide-text-sub)">젊은 한국 여성이 아이폰 전면 카메라로 찍은 고화질 1:1 POV 셀카. 휴대폰을 머리보다 높게 든 하이앵글의 미디엄 샷. 창가에서 들어오는 강렬하고 밝은 자연광이 피부 톤을 생기 있고 빛나게 만드는 높은 채도의 조명을 연출합니다. 화장기가 거의 없는 자연스럽고 청초한 스타일이 특징적입니다. 심플한 흰색 반팔 티셔츠를 착용합니다. 은은한 자연광이 보정 없는 실제 아이폰 사진처럼 선명한 색감과 세련된 분위기를 자아냅니다.</p>
+        <p class="edit" contenteditable="true" style="font-size:11.5px;color:var(--slide-muted);margin-top:14px">* 왼쪽 위부터 시계방향으로 NanoBanana Pro, Seedream, GPT Image, Midjourney</p>
+      </div>
+    </div>
+    ${F.replace('{PART}','Part 1.  이해하기')}
+  </div></div>`},
+
+{id:'t2i-case2',part:1,label:'T2I 비교 · 한국인 남성 거울 셀카',html:`
+  <div class="slide"><div class="slide-inner">
+    <h1 class="page-h1 edit" contenteditable="true">이미지 모델 결과물 비교 (T2I)</h1>
+    <div class="case-layout">
+      <div class="img-2x2" style="max-width:520px">
+        <img src="${IMG}img-009-050.png" alt="NanoBanana Pro">
+        <img src="${IMG}img-009-052.png" alt="Seedream">
+        <img src="${IMG}img-009-056.png" alt="Midjourney">
+        <img src="${IMG}img-009-054.png" alt="GPT Image">
+      </div>
+      <div class="case-body">
+        <h3 class="edit" contenteditable="true">Case 2. 한국인 남성 거울 셀카</h3>
+        <p class="edit" contenteditable="true" style="font-size:13.5px;line-height:1.75;color:var(--slide-text-sub)">미니멀하고 깨끗한 배경의 방에서 찍은 잘생긴 젊은 한국 남성의 고품질 1:1 거울 셀카. 날렵한 턱선, 깊고 어두운 눈매, 앞머리가 있는 자연스럽고 약간 부스스한 검은색 헤어스타일을 하고 있습니다. 트렌디한 검은색 오버사이즈 후드티를 입고 있습니다. 배경은 단순하고 정돈된 흰색 또는 밝은 회색 벽으로, 매우 깨끗하고 현대적인 미학을 제공합니다. 편집되지 않은 실제 SNS 게시물 느낌입니다.</p>
+        <p class="edit" contenteditable="true" style="font-size:11.5px;color:var(--slide-muted);margin-top:14px">* 왼쪽 위부터 시계방향으로 NanoBanana Pro, Seedream, GPT Image, Midjourney</p>
+      </div>
+    </div>
+    ${F.replace('{PART}','Part 1.  이해하기')}
+  </div></div>`},
+
+{id:'t2i-case3',part:1,label:'T2I 비교 · 백인 여성 화보',html:`
+  <div class="slide"><div class="slide-inner">
+    <h1 class="page-h1 edit" contenteditable="true">이미지 모델 결과물 비교 (T2I)</h1>
+    <div class="case-layout">
+      <div class="img-2x2" style="max-width:520px">
+        <img src="${IMG}img-010-058.png" alt="NanoBanana Pro">
+        <img src="${IMG}img-010-060.png" alt="Seedream">
+        <img src="${IMG}img-010-064.png" alt="Midjourney">
+        <img src="${IMG}img-010-062.png" alt="GPT Image">
+      </div>
+      <div class="case-body">
+        <h3 class="edit" contenteditable="true">Case 3. 백인 여성 화보</h3>
+        <p class="edit" contenteditable="true" style="font-size:13.5px;line-height:1.75;color:var(--slide-text-sub)">세련된 이목구비와 길고 어두운 웨이브 헤어를 가진 젊은 여성의 하이패션 에디토리얼 포트레이트. 심플한 화이트 리브드 탱크탑에 빈티지한 워싱이 가미된 오버사이즈 그레이 와이드 팬츠를 매치했습니다. 신발은 나이키의 시그니처 스니커즈를 착용하고 있습니다. 바닥에 앉아 한쪽 다리는 굽히고 다른 쪽은 뻗은 채, 카메라를 비껴 옆을 사색적으로 응시하는 포즈를 취하고 있습니다. 배경은 미니멀한 라이트 블루 그라데이션으로 깔끔하고 산뜻한 미학을 보여줍니다.</p>
+        <p class="edit" contenteditable="true" style="font-size:11.5px;color:var(--slide-muted);margin-top:14px">* 왼쪽 위부터 시계방향으로 NanoBanana Pro, Seedream, GPT Image, Midjourney</p>
+      </div>
+    </div>
+    ${F.replace('{PART}','Part 1.  이해하기')}
+  </div></div>`},
+
+{id:'i2i-prompt',part:1,label:'I2I 프롬프트 예시',html:`
+  <div class="slide"><div class="slide-inner">
+    <h1 class="page-h1 edit" contenteditable="true">이미지 모델 결과물 비교 (I2I)</h1>
+    <p class="page-p edit" contenteditable="true" style="font-weight:700;margin-top:6px">(아래 이미지들을 넣고) 다음 프롬프트 사용:</p>
+    <p class="page-p edit" contenteditable="true" style="color:var(--slide-text-sub);font-size:13.5px;line-height:1.7">전문적인 하이엔드 광고 사진. 자연스러운 짧은 검은 머리와 부드러운 미소를 지닌 한국인 남성(@Image1)이 닥터페퍼 캔(@Image3)을 들고 가리키고 있음. 전체적인 구도와 포즈, 프레이밍은 제공된 스케치 가이드(@Image2)를 엄격히 따름. 미니멀한 화이트 스튜디오 배경, 부드러운 시네마틱 조명, 8k 해상도, 실사 같은 고해상도 화보 스타일.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px;flex:1;align-items:center">
+      <div style="aspect-ratio:1;background:#f5f5f5;border-radius:6px;overflow:hidden"><img src="${IMG}img-012-066.png" alt="@Image1" style="width:100%;height:100%;object-fit:contain"></div>
+      <div style="aspect-ratio:1;background:#f5f5f5;border-radius:6px;overflow:hidden"><img src="${IMG}img-012-068.png" alt="@Image2" style="width:100%;height:100%;object-fit:contain"></div>
+      <div style="aspect-ratio:1;background:#f5f5f5;border-radius:6px;overflow:hidden"><img src="${IMG}img-012-070.png" alt="@Image3" style="width:100%;height:100%;object-fit:contain"></div>
+    </div>
+    ${F.replace('{PART}','Part 1.  이해하기')}
+  </div></div>`},
+
+{id:'i2i-result',part:1,label:'I2I 결과물 비교',html:`
+  <div class="slide"><div class="slide-inner">
+    <h1 class="page-h1 edit" contenteditable="true">이미지 모델 결과물 비교 (I2I)</h1>
+    <div class="case-layout">
+      <div class="case-body" style="order:-1">
+        <p class="edit" contenteditable="true" style="font-size:13.5px;line-height:1.75;color:var(--slide-text-sub)">전문적인 하이엔드 광고 사진. 자연스러운 짧은 검은 머리와 부드러운 미소를 지닌 한국인 남성(@Image1)이 닥터페퍼 캔(@Image3)을 들고 가리키고 있음. 전체적인 구도와 포즈, 프레이밍은 제공된 스케치 가이드(@Image2)를 엄격히 따름. 미니멀한 화이트 스튜디오 배경, 부드러운 시네마틱 조명, 8k 해상도, 실사 같은 고해상도 화보 스타일.</p>
+        <p class="edit" contenteditable="true" style="font-size:11.5px;color:var(--slide-muted);margin-top:14px">* 왼쪽 위부터 시계방향으로 NanoBanana Pro 4K, Seedream 4.5, GPT Image 1.5, Flux 2</p>
+      </div>
+      <div class="img-2x2" style="max-width:520px">
+        <img src="${IMG}img-013-072.png" alt="NanoBanana Pro 4K">
+        <img src="${IMG}img-013-074.png" alt="Seedream 4.5">
+        <img src="${IMG}img-013-078.png" alt="Flux 2">
+        <img src="${IMG}img-013-076.png" alt="GPT Image 1.5">
+      </div>
+    </div>
+    ${F.replace('{PART}','Part 1.  이해하기')}
+  </div></div>`},
+
+{id:'consistency',part:1,label:'FAQ · 일관성 유지 방법',html:`
+  <div class="slide"><div class="slide-inner">
+    <div class="page-kicker" contenteditable="true">FAQ</div>
+    <div class="two-col">
+      <div class="two-col-left">
+        <h1 class="edit" contenteditable="true" style="font-size:40px">일관성은 어떻게 유지하나요?</h1>
+      </div>
+      <div class="two-col-right">
+        <h3 class="edit" contenteditable="true">"나노바나나 프로 4K가 가장 좋습니다"</h3>
+        <p class="page-p edit" contenteditable="true">일관성 유지에 강점을 가진 모델은 다음과 같습니다.</p>
+        <ul class="dots" style="margin:6px 0 12px 0">
+          <li class="edit" contenteditable="true">NanoBanana Pro</li>
+          <li class="edit" contenteditable="true">Seedream 4.5</li>
+          <li class="edit" contenteditable="true">Flux 2</li>
+          <li class="edit" contenteditable="true">Gpt Image 1.5</li>
+        </ul>
+        <p class="page-p edit" contenteditable="true">나노바나나 프로가 비용은 가장 비싸지만, 성능이 가장 좋습니다. <b>디테일이 중요한 제품 이미지의 경우, 나노바나나 프로 모델을 해상도 4K로 사용하면 가장 우수한 결과를 얻을 수 있으며, 인물/캐릭터 일관성은 다른 모델로도 충분히 구현이 가능합니다.</b> 하지만 나노바나나 프로 4K에서도 제품 상의 텍스트가 깨지는 현상이 여전히 발생할 수 있어 후보정 작업이 필요합니다.</p>
+        <p class="page-p edit" contenteditable="true">참고로, 과거에는 일관성 유지를 위해 'LoRA' 등을 활용한 이미지 학습이 필요했지만, 현재는 모델의 발전으로, 단순 I2I 방식만으로도 충분히 구현이 가능합니다.</p>
+      </div>
+    </div>
+    ${F.replace('{PART}','Part 1.  이해하기')}
+  </div></div>`},
+
+{id:'long-video',part:1,label:'FAQ · 긴 영상 만들기',html:`
+  <div class="slide"><div class="slide-inner">
+    <div class="page-kicker" contenteditable="true">FAQ</div>
+    <div class="two-col">
+      <div class="two-col-left">
+        <h1 class="edit" contenteditable="true" style="font-size:40px">긴 영상은 어떻게 만드나요?</h1>
+      </div>
+      <div class="two-col-right">
+        <h3 class="edit" contenteditable="true">"아직 한번에 생성하는 건 한계가 있습니다"</h3>
+        <p class="page-p edit" contenteditable="true">다음 작업을 순차적으로 진행해야 합니다. (I2V 기준)</p>
+        <ol class="nums" style="margin:8px 0 14px 0">
+          <li class="edit" contenteditable="true">스토리보드 기획</li>
+          <li class="edit" contenteditable="true">컷별 첫 프레임(이미지) 제작 — R2V에서는 캐릭터시트 제작으로 대체</li>
+          <li class="edit" contenteditable="true">2번 결과물 영상화</li>
+          <li class="edit" contenteditable="true">오디오 소스(내레이션, BGM, 효과음) 생성</li>
+          <li class="edit" contenteditable="true">영상 편집 및 완성</li>
+        </ol>
+        <p class="page-p edit" contenteditable="true">AI 영상에서도 완성도를 위해서는 결국 <b>기획과 편집 역량이 중요</b>하며, AI로 생성하는 영상 1개의 컷 길이가 보통 5~10초 정도이므로 이를 고려한 기획이 필요합니다.</p>
+        <p class="page-p edit" contenteditable="true">네이티브 오디오 기능이 탑재된 영상 모델이 등장하며 4번(오디오) 작업의 비중이 낮아질 것으로 보이며, 더 나아가 <b>최신 AI 에이전트가 복잡한 워크플로우를 하나의 인터페이스 안에서 통합해가고 있습니다.</b></p>
+      </div>
+    </div>
+    ${F.replace('{PART}','Part 1.  이해하기')}
+  </div></div>`},
+
+{id:'commercial',part:1,label:'FAQ · 상업적 활용',html:`
+  <div class="slide"><div class="slide-inner">
+    <div class="page-kicker" contenteditable="true">FAQ</div>
+    <div class="two-col">
+      <div class="two-col-left">
+        <h1 class="edit" contenteditable="true" style="font-size:40px">상업적으로 활용해도 되나요?</h1>
+      </div>
+      <div class="two-col-right">
+        <h3 class="edit" contenteditable="true">"결과물이 유사하지 않으면 가능합니다"</h3>
+        <p class="page-p edit" contenteditable="true"><b>현행 저작권법상 AI 산출물은 저작물로 인정되지 않아, 별도의 사용 허가 없이 광고·마케팅 소재로 활용할 수 있습니다.</b></p>
+        <p class="page-p edit" contenteditable="true">학습 데이터의 저작권 침해를 걱정하시는 분들도 있는데요. 현재 관련 리스크는 AI 모델을 개발한 회사 차원에서 다뤄지고 있어, 일반적인 용도의 사용자는 크게 걱정하지 않으셔도 됩니다.</p>
+        <p class="page-p edit" contenteditable="true"><b>다만, 결과물이 기존 저작물·인물·브랜드와 시각적으로 유사한 경우에는 문제가 될 수 있습니다.</b> 이는 AI 콘텐츠만의 문제가 아니라 모든 콘텐츠 제작에서 공통적으로 주의해야 할 사항이기도 합니다. 이미지 검색으로 유사성을 간단히 확인하는 습관을 들이는 것을 권장합니다.</p>
+        <p class="page-p edit" contenteditable="true">마지막으로, <b>플랫폼마다 상업적 이용 허용 범위가 다를 수 있으니 사용 전 약관 확인이 필요합니다.</b></p>
+      </div>
+    </div>
+    ${F.replace('{PART}','Part 1.  이해하기')}
+  </div></div>`},
+
+{id:'copyright',part:1,label:'FAQ · 저작권 주장',html:`
+  <div class="slide"><div class="slide-inner">
+    <div class="page-kicker" contenteditable="true">FAQ</div>
+    <div class="two-col">
+      <div class="two-col-left">
+        <h1 class="edit" contenteditable="true" style="font-size:40px">저작권을 주장할 수 있나요?</h1>
+      </div>
+      <div class="two-col-right">
+        <h3 class="edit" contenteditable="true">"편집 작업이 더해지면 인정 받을 수 있습니다"</h3>
+        <p class="page-p edit" contenteditable="true"><b>현행 저작권법상 AI가 단독으로 생성한 결과물은 저작물로 인정 받기 어렵습니다.</b> 저작권은 '인간의 창작적 표현'을 보호하는 제도이기 때문입니다.</p>
+        <p class="page-p edit" contenteditable="true"><b>그러나 인간의 창작적 기여가 충분히 개입된 경우에는 가능합니다.</b> 국내에서는 'AI수로부인'이 시나리오 기획 및 영상 편집을 창작적 기여로 인정 받아, 최초로 편집저작물로 등록되었습니다.</p>
+        <p class="page-p edit" contenteditable="true">이후 2025년 6월, 문화체육관광부·한국저작권위원회는 <span class="link-blue">「생성형 AI 활용 저작물의 저작권 등록 안내서」</span>를 공식 발표하며 등록 기준을 공식화했습니다. <b>안내서에서 제시한 인간의 창작적 기여 인정 기준은 다음 세 가지입니다.</b></p>
+        <ul class="dots" style="margin:6px 0 12px 0">
+          <li class="edit" contenteditable="true">자신의 저작물을 입력으로 활용한 경우</li>
+          <li class="edit" contenteditable="true">단순 색 변경이나 텍스트 수정 이상의 후반작업이 더해진 경우</li>
+          <li class="edit" contenteditable="true">여러 소스들을 배열하고 편집한 경우</li>
+        </ul>
+      </div>
+    </div>
+    ${F.replace('{PART}','Part 1.  이해하기')}
+  </div></div>`},
+
+/* ==================== PART 2 ==================== */
+{id:'part2-cover',part:2,label:'▶ Part 2 시작',html:`
+  <div class="slide part-cover p2"><div class="slide-inner">
+    <div class="part-num-big" contenteditable="true">Part 2.</div>
+    <div class="part-title-big edit" contenteditable="true">따라하기</div>
+    <div class="part-desc edit" contenteditable="true">주요 AI 콘텐츠 사례와 프롬프트 예시를 살펴봅니다.</div>
+  </div></div>`},
+
+{id:'prompt-structure',part:2,label:'기본 프롬프트 구조',html:`
+  <div class="slide"><div class="slide-inner">
+    <h1 class="page-h1 edit" contenteditable="true">기본 프롬프트 구조</h1>
+    <div class="prompt-grid">
+      <div class="prompt-box">
+        <h4 class="edit" contenteditable="true">이미지 T2I</h4>
+        <div class="row edit" contenteditable="true">[주체] + [배경/환경] + [조명/색감] + [구도] + [스타일]</div>
+        <div class="row eg edit" contenteditable="true">예시: 38세 한국인 남성, 미니멀한 서재, 부드러운 간접 조명, 클로즈업, 35mm 필름 사진 스타일</div>
+      </div>
+      <div class="prompt-box">
+        <h4 class="edit" contenteditable="true">이미지 I2I</h4>
+        <div class="row edit" contenteditable="true">[원본 유지 요소] + [변경/수정 사항] + [추가 디테일]</div>
+        <div class="row eg edit" contenteditable="true">예시: 원본의 인물 얼굴과 포즈는 유지, 배경을 복잡한 도심 야경으로 변경, 네온사인 조명 추가</div>
+      </div>
+      <div class="prompt-box">
+        <h4 class="edit" contenteditable="true">영상 T2V</h4>
+        <div class="row edit" contenteditable="true">[T2I 구조] + [피사체의 동작] + [카메라 움직임] + [전체적인 분위기]</div>
+        <div class="row eg edit" contenteditable="true">예시: 38세 한국인 남성, 미니멀한 서재, 부드러운 간접 조명, 클로즈업, 35mm 필름 사진 스타일, 남자가 책장에 꽂힌 책등을 하나하나 훑으며 천천히 옆으로 걸어감. 부드러운 사이드 트래킹 샷, 고요하고 평화로운 분위기</div>
+      </div>
+      <div class="prompt-box">
+        <h4 class="edit" contenteditable="true">영상 I2V</h4>
+        <div class="row edit" contenteditable="true">[이미지 속 주체의 구체적 동작] + [카메라의 움직임] + [속도/특수효과] + [마지막 장면 묘사]</div>
+        <div class="row eg edit" contenteditable="true">예시: 말티즈가 꼬리를 흔들며 활기차게 짖음, 얼굴 쪽으로 천천히 줌인, 자연스러운 털의 움직임, 초근접 샷으로 종료</div>
+      </div>
+    </div>
+    ${F.replace('{PART}','Part 2.  따라하기')}
+  </div></div>`},
+
+{id:'prompt-tips',part:2,label:'FAQ · 프롬프트 작성 팁',html:`
+  <div class="slide"><div class="slide-inner">
+    <div class="page-kicker" contenteditable="true">FAQ</div>
+    <div class="two-col">
+      <div class="two-col-left">
+        <h1 class="edit" contenteditable="true" style="font-size:40px">프롬프트 작성 팁이 있나요?</h1>
+      </div>
+      <div class="two-col-right">
+        <h3 class="edit" contenteditable="true">"레퍼런스를 찾아보세요"</h3>
+        <p class="page-p edit" contenteditable="true">빈칸에서 처음부터 프롬프트를 작성하는 일은 어렵습니다. 대신 <b>비주얼 레퍼런스를 찾아본 뒤, LLM에게 '이 결과물을 얻기 위한 정교한 프롬프트를 작성해줘'라고 요청하면 우수한 프롬프트를 작성해줍니다.</b> 따라서 앞에서 본 기본 프롬프트 구조는 참고용으로만 알고 있어도 충분합니다.</p>
+        <p class="page-p edit" contenteditable="true">나아가 요즘은 프롬프트 엔지니어링의 중요성 자체가 낮아지고 있습니다. 최신 AI들은 에이전트로 발전하면서 모호한 요청을 스스로 보완합니다. 즉, 간단하게 요청해도 결과물을 위한 복잡한 프롬프트를 대신 작성해 사용하는 것입니다.</p>
+        <p class="page-p edit" contenteditable="true"><b>Part 2에 등장하는 모든 예시는 AI 에이전트로 제작한 것이며, 에이전트의 효용을 살펴보기 위해 각 예시에는 사용자가 실제로 입력한 요청(Before)과 에이전트가 이를 변환해 실제로 사용한 정교한 프롬프트(After)를 함께 배치했습니다.</b></p>
+      </div>
+    </div>
+    ${F.replace('{PART}','Part 2.  따라하기')}
+  </div></div>`},
+
+/* ------- Cases ------- */
+{id:'case1',part:2,label:'Case 1. 제품 연출컷',html:caseSlide({
+  main:'img-020-086.png',refs:['img-020-082.png','img-020-084.png'],
+  title:'Case 1. 제품 연출컷',model:'나노바나나 프로',
+  before:"첫번째 이미지를 생성하기 위한 프롬프트를 작성하고, '브랜드 세럼' 제품의 연출컷 이미지 1:1로 만들어줘. 나노바나나프로를 사용해줘.",
+  after:"High-end professional product photography. Replace the bottle in @Image1 with the 'BRAND SERUM' bottle from @Image2. The 'BRAND SERUM' bottle, featuring its distinctive white label with navy blue text and silver collar, should be tilted diagonally at the same angle as in @Image1. Maintain the elegant, viscous serum stream dripping from the white dropper. The background should be a clean, sophisticated light gray gradient with soft studio lighting, preserving the overall composition and premium aesthetic of @Image1."
+})},
+
+{id:'case2',part:2,label:'Case 2. 제품 FOOH',html:caseSlide({
+  main:'img-021-092.png',refs:['img-021-088.png','img-021-090.png'],
+  title:'Case 2. 제품 FOOH',model:'나노바나나 프로',
+  before:"첫번째 이미지와 같은 FOOH 신발 광고를 만들 거야. '브랜드 운동화'의 제품을 활용해서 새로운 이미지를 1:1로 만들어줘. 나노바나나 프로를 사용해줘.",
+  after:"A surreal FOOH (Fake Out of Home) advertisement image featuring a massive 'Brand' sneaker hanging from the Namsan Tower (N Seoul Tower) in Seoul. The sneaker design follows @Image2: a premium white leather base with vibrant, organic electric blue curves on the sides. The composition follows @Image1: the giant shoe is suspended from the tower's observation deck by its thick white laces, looming over the hazy Seoul city skyline. Instead of 'WORLD RECORD', the brand name 'BRAND' is clearly visible on the shoe's side and tongue. High-detail cinematic lighting, clear day sky background, 1:1 aspect ratio."
+})},
+
+{id:'case3',part:2,label:'Case 3. 모델컷 - 뷰티',html:caseSlide({
+  main:'img-022-096.png',refs:['img-022-094.png'],
+  title:'Case 3. 모델컷 - 뷰티',model:'씨드림',
+  before:"이 한국인 뷰티화보 이미지를 생성하기 위한 프롬프트를 재구성하고, T2I로 상업용 뷰티화보 시안 1:1로 만들어줘. 씨드림을 사용해줘.",
+  after:"High-end skincare brand campaign. A stunning Korean model with unique facial features, emphasizing luminous porcelain skin. She holds a small white square skincare product near her face. Her expression is serene and confident. Background is a soft-focus garden with delicate pastel flowers and natural lighting. Pure, premium, and sophisticated aesthetic. Professional beauty editorial style. 1:1 ratio."
+})},
+
+{id:'case4',part:2,label:'Case 4. 모델컷 제품 변경 - 뷰티',html:caseSlide({
+  main:'img-023-102.png',refs:['img-023-098.png','img-023-100.png'],
+  title:'Case 4. 모델컷 제품 변경 - 뷰티',model:'나노바나나 프로',
+  before:"1번 이미지 모델이 흰색 사각형 물체 대신 2번 이미지의 '브랜드 세럼' 제품을 자연스럽게 들고 있도록 수정해줘. 모델, 구도, 배경은 바뀌지 않고 제품만 바뀌게 해줘. 나노바나나프로 4K를 사용해줘.",
+  after:"Modify the woman's hand to naturally grasp the side of the 'BRAND SERUM' bottle using all fingers. The hand should be wrapped around the body of the clear glass bottle in a firm yet elegant beauty product pose. Ensure the 'BRAND SERUM' bottle remains prominent and clearly visible. Keep the model's face, hair, and the blurred floral background identical to the first reference image. 4K resolution, cinematic lighting, realistic skin texture and hand anatomy."
+})},
+
+{id:'case5',part:2,label:'Case 5. 모델컷 - 패션',html:caseSlide({
+  main:'img-024-106.png',refs:['img-024-104.png'],
+  title:'Case 5. 모델컷 - 패션',model:'나노바나나 프로',
+  before:"이 패션화보 이미지를 생성하기 위한 프롬프트를 재구성하고, T2I로 상업용 패션화보 시안 1:1로 만들어줘. 나노바나나프로를 사용해줘.",
+  after:"A young woman with long, wavy blonde hair, eyes closed in a peaceful expression, and a gentle smile. She is in a crouching pose, with her legs tucked beneath her. She wears a vibrant deep green chunky knit sweater with a ribbed texture and a delicate white lace collar. Below the sweater, she has a crisp white pleated mini-skirt. She is wearing cream-colored ribbed socks that reach just below her knees and burgundy pointed-toe heels with an ankle strap. A smooth, structured brown leather handbag rests on her lap. The background is a minimalist off-white studio wall. The floor is a checkered pattern of light beige and cream tiles. Soft, even studio lighting. Fashion photography, editorial style, high detail, realistic."
+})},
+
+{id:'case6',part:2,label:'Case 6. 모델컷 제품 변경 - 패션',html:caseSlide({
+  main:'img-025-112.png',refs:['img-025-108.png','img-025-110.png'],
+  title:'Case 6. 모델컷 제품 변경 - 패션',model:'나노바나나 프로',
+  before:"1번 이미지 모델이 갈색 가방 대신 2번 이미지 '브랜드 가죽백'을 자연스럽게 들고 있게 해줘. 모델, 구도, 배경은 바뀌지 않게 해주고, 가방의 질감 디테일을 잘 살려줘. 나노바나나프로 4K를 사용해줘.",
+  after:"Replace the brown bag with the blue 'BRAND' leather handbag from the reference. The model's peaceful expression, crouching pose, green sweater, and checkered floor must remain identical. Focus on rendering the \"BRAND\" brand text on the bag clearly and legibly in silver embossed letters. The texture of the blue leather should be crisp and high-quality. 4K resolution, studio fashion photography."
+})},
+
+{id:'case7',part:2,label:'Case 7. 3D 캐릭터 - 만들기',html:caseSlide({
+  main:'img-026-114.png',refs:[],
+  title:'Case 7. 3D 캐릭터 - 만들기',model:'Z-이미지',
+  before:"유튜브에 애니메이션을 연재할 거야. 3D 클레이 스타일로 20대 한국인 남자 MZ 취준생 캐릭터를 만들어줘. Z이미지를 사용해줘.",
+  after:"A 20-year-old Korean male job seeker character in 3D clay animation style. Wearing a grey hoodie, cute and relatable expression. Clear clay textures and vibrant colors. 1:1 aspect ratio."
+})},
+
+{id:'case8',part:2,label:'Case 8. 3D 캐릭터 - 활용하기',html:caseSlide({
+  main:'img-027-118.png',refs:['img-027-116.png'],
+  title:'Case 8. 3D 캐릭터 - 활용하기',model:'씨드림',
+  before:"다양한 상황에서의 시안 이미지 4분할컷으로 만들어줘. 씨드림을 사용해줘.",
+  after:"3D clay animation style, the same Korean male character in a grey hoodie. Scene 1: Sitting in front of a laptop at a desk, looking focused but tired, with a stack of books nearby. Scene 2: Cheering with arms raised and a bright smile, celebrating a job interview call. Scene 3: Eating ramen at a small table, looking lonely but cozy. Scene 4: Walking outside with a backpack, looking hopeful. Maintain the handcrafted clay texture and character features. 1:1 aspect ratio."
+})},
+
+{id:'case9',part:2,label:'Case 9. 광고 배너',html:caseSlide({
+  main:'img-028-124.png',refs:['img-028-120.png','img-028-122.png'],
+  title:'Case 9. 광고 배너',model:'나노바나나 프로',
+  before:"첫번째 광고소재의 레이아웃과 문구를 참고해서, 두번째 '브랜드 세럼' 제품의 광고소재를 만들어줘. 말풍선에는 '고농축 수분 진정 세럼 30ml'이라고 작성해줘.",
+  after:"A high-end, professionally designed 4K commercial web advertisement banner for 'BRAND SERUM'. Strictly follow the layout and blue color palette (#4DA6FF) of the reference image (image 1). Replace the central product with the 'BRAND SERUM' bottle (image 2). Use bold, 3D-styled typography for '첫구매 100원' with strong outlines and drop shadows for maximum visibility against the vibrant blue gradient background. CRITICAL: In the speech bubble at the bottom left, the text MUST be '브랜드 세럼' followed by '고농축 수분 진정 세럼 30ml'. Do not use any other brand names. Include the Korean text 'ONLY 자사몰 2월 이벤트!' at the top inside a white pill-shaped container. Add floating, 3D circular coin graphic elements around the product. Ensure a clean, balanced, and professional composition. 4K resolution, 1:1 aspect ratio."
+})},
+
+{id:'case10',part:2,label:'Case 10. 포스터',html:caseSlide({
+  main:'img-029-130.png',refs:['img-029-126.png','img-029-128.png'],
+  title:'Case 10. 포스터',model:'나노바나나 프로',
+  before:"첫번째 포스터를 참고해서, 두번째 브랜드 청포도 에이드의 포스터를 만들어줘. 문구와 비주얼 요소를 적절히 수정해줘.",
+  after:"A premium 3:4 promotional poster for 'Brand Cafe' Green Grape Ade, inspired by the reference pistachio poster. Background: Deep green solid color. Layout: The Green Grape Ade glass from the reference image is placed on the right side. On the left side, the text 'GREEN GRAPE ADE' is written in a large, bold, stylized font. On the right side, include the text 'THE BEST IS HERE AT BRAND CAFE'. Visuals: Scatter fresh green grapes and ice cubes around the glass for a dynamic and fresh feel. Style: High-contrast, sophisticated cafe poster, 2K resolution. Maintain the 'brand' logo on the glass."
+})},
+
+/* ==================== PART 3 ==================== */
+{id:'part3-cover',part:3,label:'▶ Part 3 시작',html:`
+  <div class="slide part-cover p3"><div class="slide-inner">
+    <div class="part-num-big" contenteditable="true">Part 3.</div>
+    <div class="part-title-big edit" contenteditable="true">도입하기</div>
+    <div class="part-desc edit" contenteditable="true">실제 기업들의 AI콘텐츠 활용 사례를 살펴봅니다.</div>
+  </div></div>`},
+
+{id:'lgu',part:3,label:'[서비스] LGU+',html:companySlide({
+  title:'[서비스] LGU+',quote:'"마케터가 광고소재 직접 제작해 비용 95% 절감"',
+  imgs:['img-031-134.png','img-031-136.png','img-031-138.png'],grid:'g-lside',
+  paragraphs:[
+    "LG유플러스 마케팅그룹은 AI 전환(AX) 전략의 일환으로, 마케터들이 AI로 광고소재를 직접 제작하는 'AX특공대' 프로젝트를 추진했습니다.",
+    "이를 위해 기획부터 완성까지 대화형으로 작업할 수 있는 AI 도구를 도입했으며, 담당자들이 현업에 빠르게 적용할 수 있도록 맞춤형 실전 교육을 함께 진행했습니다.",
+    "그 결과 킥오프 한 달 만에 첫 광고를 성공적으로 송출했으며, 이후 전 담당자가 캠페인 계획에 맞춰 고품질 영상 광고를 직접 제작하고 있습니다. 이 중 <span class='link-blue'>&lt;듀얼넘버&gt; 광고</span>는 유튜브 조회수 15만 회를 돌파했으며, <span class='link-blue'>&lt;기가 와이파이7&gt; 광고</span>는 LCK 현장 대형 스크린을 통해 상영되기도 했습니다.",
+    "AX특공대는 기존 대행사 외주 방식 대비 약 95%의 비용을 절감하는 동시에, 제작 리드타임을 획기적으로 단축한 대표적인 AX 성공사례로 자리매김했습니다."
+  ]
+})},
+
+{id:'agabang',part:3,label:'[제품] 아가방앤컴퍼니',html:companySlide({
+  title:'[제품] 아가방앤컴퍼니',quote:'"모델·스튜디오 없이 직접 만드는 고퀄리티 제품 이미지"',
+  imgs:['img-032-140.png','img-032-142.png','img-032-144.png','img-032-146.png'],grid:'g4',
+  paragraphs:[
+    "유아동 브랜드 아가방앤컴퍼니는 신규 라이프스타일 브랜드 '아가방좋은' 런칭을 앞두고 AI 콘텐츠 도구를 도입했습니다. 의류부터 젖병, 식기류, 욕조까지 제품군이 급격히 확대된 상황에서, 기존 방식대로라면 모델 섭외·스튜디오 대관·포토그래퍼 예약까지 막대한 리소스가 필요한 상황이었습니다.",
+    "도입 후 마케팅팀은 복잡한 프롬프트 없이 대화하는 방식으로 브랜드 톤앤매너에 맞는 제품 이미지와 영상을 직접 제작하기 시작했습니다. 아가방만의 레퍼런스 세트를 구축해 일관성을 확보했으며, 영상 편집 경험이 없던 담당자도 AI 도구로 콜라보 영상을 완성해 사내에서 긍정적인 반응을 얻었습니다.",
+    "그 결과 런칭 부담을 대폭 줄이면서도 다양한 마케팅 에셋을 빠르게 확보했으며, 이제는 제품 홍보를 넘어 캐릭터, 이모티콘, 쇼츠 영상까지 브랜딩 영역 전반으로 AI 활용을 확장하고 있습니다."
+  ]
+})},
+
+{id:'busan',part:3,label:'[공공기관] 부산광역시',html:companySlide({
+  title:'[공공기관] 부산광역시',quote:'"외주로 5주 걸리던 광고도 하루 만에"',
+  imgs:['img-033-148.png','img-033-150.png'],grid:'g2',
+  paragraphs:[
+    "부산광역시 홍보전략기획팀은 예산·절차·속도의 3중 제약 속에서 홍보 업무를 수행해왔습니다. 외주 제작은 업체 선정부터 납품까지 평균 한 달 이상이 소요되어 시의적절한 콘텐츠 발행이 어려웠고, 돌파구로 AI 도입을 시도했지만 작업마다 툴이 달라 학습 부담이 또 다른 허들이 되었습니다. 그렇게 찾은 것이 기획부터 이미지·영상·음원 제작까지 하나의 대화창에서 해결되는 통합형 AI 도구였습니다.",
+    "도입 후 성과는 즉각적이었습니다. 외국인 관광객 300만 명 돌파를 기념한 옥외광고 캠페인에서는 마스코트 '부기'가 등장하는 4종 이미지와 쇼츠 영상을 직접 제작해 부산 전역 정류장·지하철역에 송출했으며, 시민 응원 캠페인용 라디오 광고는 단 하루 만에 완성해 출퇴근 시간대에 방영했습니다.",
+    "<b>업무 방식 자체가 바뀐 것도 주목할 만한 변화입니다.</b> 촘촘한 데드라인에 야근이 잦았던 팀이 이제는 제작 부담 없이 기획에 집중할 수 있게 되었으며, 옥외광고가 SNS 바이럴로 이어지는 등 콘텐츠 효과도 함께 높아졌습니다."
+  ]
+})},
+
+{id:'bookgorae',part:3,label:'[콘텐츠] 책고래 출판사',html:companySlide({
+  title:'[콘텐츠] 책고래 출판사',quote:'"수백만 원, 한 달이 필요한 영상 제작을 직접"',
+  imgs:['img-034-152.png','img-034-156.png','img-034-154.png'],grid:'g-stack',
+  paragraphs:[
+    "그림책 전문 출판사 책고래의 고민은 콘텐츠 IP 활용이었습니다. 매력적인 캐릭터와 이야기를 그림책 한 권에만 담아두기엔 아쉬움이 컸고, 영상으로 만들어 더 많은 독자와 만나고 싶었습니다. 그러나 영상 제작 단가를 확인해보니 수백만 원의 예산과 한 달의 기간이 필요했고, 출판사가 감당하기엔 부담이 너무 컸습니다.",
+    "AI 도입 후 책고래는 별도의 전문 편집 인력 없이도 그림책을 직접 영상 콘텐츠로 제작하기 시작했습니다. <span class='link-blue'>&lt;루시의 노래&gt;</span>는 AI 사운드와 결합해 북콘서트에서 상영됐고, <span class='link-blue'>&lt;호랑이가 돌아왔다&gt;</span>는 강렬한 원작 작화를 살아 움직이는 애니메이션으로 구현했으며, <span class='link-blue'>&lt;나는 반딧불&gt;</span>은 섬세한 색채를 그대로 살린 영상으로 재탄생했습니다.",
+    "책고래의 콘텐츠는 이제 그림책을 넘어 애니메이션, 음악, 게임까지 확장되고 있으며, 출판 사업의 경계 자체를 새롭게 그려가고 있습니다."
+  ]
+})},
+
+{id:'edu',part:3,label:'[교육] 동아방송예술대 & 서강대',html:companySlide({
+  title:'[교육] 동아방송예술대학교 & 서강대학교',quote:'"AI콘텐츠 교육을 위한 최적의 실습 도구"',
+  imgs:['img-035-158.png','img-035-160.png','img-035-162.png'],grid:'g-lside',
+  paragraphs:[
+    "AI 콘텐츠 교육에서 가장 큰 걸림돌은 실습 도구입니다. 미드저니·클링 등 모델을 별도로 사용하면, 학생들의 사용법 학습부담도 크고, 학교에서 계정을 관리하는 데도 어려움이 있습니다.",
+    "이에 동아방송예술대학교와 서강대학교는 통합형 AI 도구를 활용해 AI콘텐츠 교육을 진행했습니다. 동아방송예술대 디지털영상디자인과는 MOU를 체결하고 정기 특강 실습을 운영 중이며, 서강대 아트앤테크놀로지 전공은 이틀간 AI 비디오 해커톤을 주최했습니다. AI를 처음 다루는 학생들이 대부분이었지만, 별도의 툴 학습 없이 곧바로 창작에 몰입할 수 있었고, 짧은 시간 안에 완성도 높은 영상 결과물이 탄생했습니다.",
+    "<b>30개 이상의 최신 AI 모델을 바탕으로 기획부터 완성까지 대화형으로 작업할 수 있는 도구는 교육 현장에서 여러 툴을 오가는 비효율을 없애고, 학생들이 기획 및 실습에만 집중할 수 있는 환경을 만들어줍니다.</b>"
+  ]
+})},
+
+/* ==================== CLOSING ==================== */
+{id:'closing',part:3,label:'마무리',html:`
+  <div class="slide growth-slide"><div class="slide-inner">
+    <h1 class="growth-title edit" contenteditable="true">성장에 기여하는 AI콘텐츠를 위해</h1>
+    <div class="growth-body">
+      <p class="edit" contenteditable="true" style="margin-bottom:14px">영상을 보면서 어떤 툴로 편집했는지를 따지는 사람은 없습니다. 좋은 콘텐츠인지 아닌지만 남을 뿐입니다.</p>
+      <p class="edit" contenteditable="true" style="margin-bottom:18px">지금은 AI콘텐츠를 보며 어떤 모델을 썼는지, 프롬프트를 어떻게 짰는지에 관심을 갖지만, 사실 이건 부수적인 문제입니다. <strong>결국 비즈니스 임팩트로 이어지는 콘텐츠는 AI를 잘 쓴 콘텐츠가 아니라, 기획이 좋은 콘텐츠입니다.</strong></p>
+      <p class="edit" contenteditable="true"><strong>본질에 집중할 수 있도록, 통합형 AI 도구는 AI콘텐츠를 쉽게 제작할 수 있는 환경을 제공합니다.</strong></p>
+      <ul class="dots" style="margin:8px 0 14px 4px;color:rgba(255,255,255,0.85)">
+        <li class="edit" contenteditable="true">한글 대화만으로 이미지·음원·영상 완성</li>
+        <li class="edit" contenteditable="true">커스텀 워크플로우로 반복 작업 자동화</li>
+        <li class="edit" contenteditable="true">최신 AI 성능 테스트 및 연동 (현재 30개 AI 사용 가능)</li>
+      </ul>
+      <p class="edit" contenteditable="true">기술은 계속 바뀌지만, 좋은 콘텐츠의 본질은 변하지 않습니다. AI를 잘 쓰는 것보다 <strong>무엇을, 왜, 누구를 위해 만드는지</strong>를 먼저 정리하는 습관이 결국 결과를 만듭니다.</p>
+    </div>
+  </div></div>`},
+
+{id:'end',part:3,label:'닫는 페이지',html:`
+  <div class="slide end-slide"><div class="slide-inner" style="align-items:center;justify-content:center">
+    <div class="logo edit" contenteditable="true">강의자료</div>
+    <div class="tag edit" contenteditable="true">Create Anything</div>
+    <div class="copyright edit" contenteditable="true">© 2026 강의자료<br>본 자료의 전부 또는 일부를 무단으로 복제, 배포, 전송하는 것은 저작권법에 의해 금지됩니다.</div>
+  </div></div>`},
+];
+
+/* Case slide helper */
+function caseSlide(o){
+  const refs = o.refs && o.refs.length ? `
+    <div class="refs">${o.refs.map(r=>`<img src="${IMG}${r}" alt="reference">`).join('')}</div>` : '';
+  return `<div class="slide"><div class="slide-inner">
+    <div class="case-layout">
+      <img class="case-main-img" src="${IMG}${o.main}" alt="${o.title}">
+      <div class="case-body">
+        <h3 class="edit" contenteditable="true">${o.title}</h3>
+        <div class="kv edit" contenteditable="true"><b>사용 모델:</b> ${o.model}</div>
+        <h4 class="edit" contenteditable="true">사용자 요청(Before):</h4>
+        ${refs}
+        <p class="prompt-user edit" contenteditable="true">${o.before}</p>
+        <h4 class="edit" contenteditable="true" style="color:var(--slide-link)">변환된 프롬프트(After):</h4>
+        <p class="prompt-ai edit" contenteditable="true">${o.after}</p>
+      </div>
+    </div>
+    ${F.replace('{PART}','Part 2.  따라하기')}
+  </div></div>`;
+}
+
+/* Company slide helper */
+function companySlide(o){
+  return `<div class="slide"><div class="slide-inner">
+    <div class="company-layout">
+      <div class="company-body">
+        <h1 class="edit" contenteditable="true">${o.title}</h1>
+        <div class="quote edit" contenteditable="true">${o.quote}</div>
+        ${o.paragraphs.map(p=>`<p class="edit" contenteditable="true">${p}</p>`).join('')}
+      </div>
+      <div class="company-imgs ${o.grid}">
+        ${o.imgs.map(i=>`<img src="${IMG}${i}" alt="">`).join('')}
+      </div>
+    </div>
+    ${F.replace('{PART}','Part 3.  도입하기')}
+  </div></div>`;
+}
+
+/* ==================== Rendering & state ==================== */
+const PART_META = {0:{num:'',label:'Overview'},1:{num:'Part 1',label:'이해하기'},2:{num:'Part 2',label:'따라하기'},3:{num:'Part 3',label:'도입하기'}};
+const STORAGE_KEY = 'ai-content-book-edits-v2';
+
+function loadEdits(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')}catch(e){return{}}}
+function saveEdits(edits){localStorage.setItem(STORAGE_KEY,JSON.stringify(edits))}
+
+function renderNav(){
+  const nav=document.getElementById('nav');
+  let html='';let curPart=-1;
+  SLIDES.forEach((s,i)=>{
+    if(s.part!==curPart){
+      if(curPart!==-1) html+=`</ul></div>`;
+      curPart=s.part;const meta=PART_META[curPart];
+      html+=`<div class="nav-part"><div class="part-header"><span>${meta.label}</span>${meta.num?`<span class="part-num">${meta.num}</span>`:''}</div><ul class="nav-list">`;
+    }
+    html+=`<li class="nav-item" data-id="${s.id}"><span class="idx">${String(i+1).padStart(2,'0')}</span><span>${s.label}</span></li>`;
+  });
+  html+='</ul></div>';
+  nav.innerHTML=html;
+  nav.querySelectorAll('.nav-item').forEach(item=>{
+    item.addEventListener('click',()=>selectSlide(item.dataset.id));
+  });
+}
+
+let currentSlideId=null;
+function selectSlide(id){
+  const slide=SLIDES.find(s=>s.id===id);
+  if(!slide) return;
+  currentSlideId=id;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.id===id));
+  const content=document.getElementById('content');
+  content.innerHTML=slide.html;
+  applyEdits(id);wireEditables(id);
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(location.hash!=='#'+id) history.replaceState(null,'',`#${id}`);
+  document.querySelector('.sidebar').classList.remove('open');
+}
+
+function applyEdits(id){
+  const edits=loadEdits();const slideEdits=edits[id];
+  if(!slideEdits) return;
+  document.querySelectorAll('#content [contenteditable="true"]').forEach((el,idx)=>{
+    if(slideEdits[idx]!==undefined) el.innerHTML=slideEdits[idx];
+  });
+}
+
+function wireEditables(id){
+  document.querySelectorAll('#content [contenteditable="true"]').forEach((el,idx)=>{
+    el.addEventListener('input',()=>{
+      const edits=loadEdits();
+      if(!edits[id]) edits[id]={};
+      edits[id][idx]=el.innerHTML;
+      clearTimeout(el._t);
+      el._t=setTimeout(()=>saveEdits(edits),400);
+    });
+  });
+}
+
+renderNav();
+const hashId=location.hash.slice(1);
+selectSlide(SLIDES.find(s=>s.id===hashId)?.id || SLIDES[0].id);
+</script>
+</body>
+</html>
