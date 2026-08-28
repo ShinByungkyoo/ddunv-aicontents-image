@@ -248,6 +248,10 @@
     white-space:pre-wrap;word-break:break-word;margin:8px 0;
   }
   .prompt-block.small{font-size:11px;padding:12px 14px;padding-right:70px}
+  .prompt-block.has-ko{padding-right:132px}
+  .prompt-block.small.has-ko{padding-right:122px}
+  .prompt-block[data-plang="ko"]{font-family:'Noto Sans KR',sans-serif;font-size:12.5px;line-height:1.8}
+  .prompt-block.small[data-plang="ko"]{font-size:12px;line-height:1.75}
   .copy-btn{
     position:absolute;top:8px;right:8px;
     background:var(--p3-green);color:#fff;border:none;
@@ -258,6 +262,20 @@
   .copy-btn:hover{background:#1c5a42}
   .copy-btn:active{transform:scale(0.96)}
   .copy-btn.ok{background:#0f7a3d}
+  .ko-btn{
+    position:absolute;top:8px;right:60px;
+    background:transparent;color:var(--p3-green);border:1px solid var(--p3-green);
+    padding:4px 10px;border-radius:4px;font-size:10.5px;cursor:pointer;
+    font-family:'Noto Sans KR',sans-serif;font-weight:500;
+    transition:background 0.15s,color 0.15s,transform 0.1s;
+  }
+  .ko-btn:hover{background:var(--p3-green);color:#fff}
+  .ko-btn.active{background:var(--p3-green);color:#fff}
+  .ko-btn:active{transform:scale(0.96)}
+  .prompt-block.small .ko-btn{top:7px;right:56px;padding:3px 9px;font-size:10px}
+  .has-ko .plang-ko{display:none}
+  .has-ko[data-plang="ko"] .plang-en{display:none}
+  .has-ko[data-plang="ko"] .plang-ko{display:inline}
 
   .p3-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}
   .p3-compare .cell{
@@ -393,6 +411,16 @@
   .copy-btn-inline:hover{opacity:1;background:#1c5a42}
   .copy-btn-inline.ok{background:#0f7a3d;opacity:1}
   .case-body .has-copy{padding-right:60px}
+  .ko-btn-inline{
+    position:absolute;top:6px;right:56px;
+    background:transparent;color:var(--p3-green);border:1px solid var(--p3-green);
+    padding:3px 9px;border-radius:4px;font-size:10.5px;cursor:pointer;
+    font-family:'Noto Sans KR',sans-serif;font-weight:500;
+    opacity:0.9;transition:opacity 0.15s,background 0.15s,color 0.15s;z-index:5;
+  }
+  .ko-btn-inline:hover{background:var(--p3-green);color:#fff;opacity:1}
+  .ko-btn-inline.active{background:var(--p3-green);color:#fff;opacity:1}
+  .case-body .has-copy.has-ko{padding-right:112px}
 
   /* Edit-mode indicator badge */
   .edit-badge{
@@ -470,16 +498,35 @@ const F = '<div class="slide-footer"><span>AI 이미지 강의 자료</span><spa
 
 /* ---------- Helpers ---------- */
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function prompt_block(text,small){
+function prompt_block(en,small,ko){
   const cls = small?'prompt-block small':'prompt-block';
-  return `<div class="${cls}"><button class="copy-btn" onclick="copyPrompt(this)">복사</button><span class="prompt-text">${esc(text)}</span></div>`;
+  if(!ko){
+    return `<div class="${cls}"><button class="copy-btn" onclick="copyPrompt(this)">복사</button><span class="prompt-text">${esc(en)}</span></div>`;
+  }
+  return `<div class="${cls} has-ko" data-plang="en"><button class="copy-btn" onclick="copyPrompt(this)">복사</button><button class="ko-btn" onclick="togglePLang(this)">한글</button><span class="prompt-text plang-en">${esc(en)}</span><span class="prompt-text plang-ko">${esc(ko)}</span></div>`;
 }
 function copyPrompt(btn){
-  const t = btn.parentElement.querySelector('.prompt-text').innerText;
+  const c = btn.parentElement;
+  let t;
+  if(c.classList.contains('has-ko')){
+    const lang = c.dataset.plang || 'en';
+    const span = c.querySelector('.plang-'+lang);
+    t = span ? span.innerText : c.querySelector('.prompt-text').innerText;
+  } else {
+    t = c.querySelector('.prompt-text').innerText;
+  }
   navigator.clipboard.writeText(t).then(()=>{
     btn.classList.add('ok');const o=btn.textContent;btn.textContent='복사됨!';
     setTimeout(()=>{btn.textContent=o;btn.classList.remove('ok')},1400);
   });
+}
+function togglePLang(btn){
+  const c = btn.parentElement;
+  const cur = c.dataset.plang || 'en';
+  const next = cur==='en' ? 'ko' : 'en';
+  c.dataset.plang = next;
+  btn.textContent = next==='ko' ? '영문' : '한글';
+  btn.classList.toggle('active', next==='ko');
 }
 
 const SLIDES = [
@@ -797,7 +844,8 @@ const SLIDES = [
   title:'Case 1. 제품 연출컷',model:'나노바나나 프로',
   before:"첫번째 이미지를 생성하기 위한 프롬프트를 작성하고, '브랜드 세럼' 제품의 연출컷 이미지 1:1로 만들어줘. 나노바나나프로를 사용해줘.",
   beforeEn:"Write the prompt used to generate the first image, and produce a 1:1 lifestyle shot of the 'Brand Serum' product. Use Nano Banana Pro.",
-  after:"High-end professional product photography. Replace the bottle in @Image1 with the 'BRAND SERUM' bottle from @Image2. The 'BRAND SERUM' bottle, featuring its distinctive white label with navy blue text and silver collar, should be tilted diagonally at the same angle as in @Image1. Maintain the elegant, viscous serum stream dripping from the white dropper. The background should be a clean, sophisticated light gray gradient with soft studio lighting, preserving the overall composition and premium aesthetic of @Image1."
+  after:"High-end professional product photography. Replace the bottle in @Image1 with the 'BRAND SERUM' bottle from @Image2. The 'BRAND SERUM' bottle, featuring its distinctive white label with navy blue text and silver collar, should be tilted diagonally at the same angle as in @Image1. Maintain the elegant, viscous serum stream dripping from the white dropper. The background should be a clean, sophisticated light gray gradient with soft studio lighting, preserving the overall composition and premium aesthetic of @Image1.",
+  afterKo:"하이엔드 전문 제품 사진. @Image1의 병을 @Image2의 'BRAND SERUM' 병으로 교체. 흰 라벨에 네이비 블루 글자와 실버 칼라가 특징인 'BRAND SERUM' 병은 @Image1과 동일한 각도로 대각선 기울여서 배치. 흰 드로퍼에서 흘러내리는 우아하고 점성 있는 세럼 흐름은 그대로 유지. 배경은 부드러운 스튜디오 조명이 들어간 깔끔하고 세련된 라이트 그레이 그라데이션, @Image1의 전체 구도와 프리미엄 감성을 보존."
 })},
 
 {id:'case2',part:2,label:'Case 2. 제품 FOOH',html:caseSlide({
@@ -805,7 +853,8 @@ const SLIDES = [
   title:'Case 2. 제품 FOOH',model:'나노바나나 프로',
   before:"첫번째 이미지와 같은 FOOH 신발 광고를 만들 거야. '브랜드 운동화'의 제품을 활용해서 새로운 이미지를 1:1로 만들어줘. 나노바나나 프로를 사용해줘.",
   beforeEn:"I want to make a FOOH sneaker ad like the first image. Using the 'Brand Sneakers' product, create a new 1:1 image. Use Nano Banana Pro.",
-  after:"A surreal FOOH (Fake Out of Home) advertisement image featuring a massive 'Brand' sneaker hanging from the Namsan Tower (N Seoul Tower) in Seoul. The sneaker design follows @Image2: a premium white leather base with vibrant, organic electric blue curves on the sides. The composition follows @Image1: the giant shoe is suspended from the tower's observation deck by its thick white laces, looming over the hazy Seoul city skyline. Instead of 'WORLD RECORD', the brand name 'BRAND' is clearly visible on the shoe's side and tongue. High-detail cinematic lighting, clear day sky background, 1:1 aspect ratio."
+  after:"A surreal FOOH (Fake Out of Home) advertisement image featuring a massive 'Brand' sneaker hanging from the Namsan Tower (N Seoul Tower) in Seoul. The sneaker design follows @Image2: a premium white leather base with vibrant, organic electric blue curves on the sides. The composition follows @Image1: the giant shoe is suspended from the tower's observation deck by its thick white laces, looming over the hazy Seoul city skyline. Instead of 'WORLD RECORD', the brand name 'BRAND' is clearly visible on the shoe's side and tongue. High-detail cinematic lighting, clear day sky background, 1:1 aspect ratio.",
+  afterKo:"서울 남산타워(N서울타워)에 거대한 'Brand' 운동화가 매달려 있는 초현실적 FOOH(Fake Out of Home) 광고 이미지. 운동화 디자인은 @Image2를 따름: 프리미엄 흰 가죽 베이스, 옆면에 유기적이고 강렬한 일렉트릭 블루 곡선. 구도는 @Image1을 따름: 거대한 신발이 타워 전망대에서 두꺼운 흰 신발끈으로 매달려, 흐릿한 서울 도심 스카이라인 위로 우뚝 솟아 있음. 'WORLD RECORD' 대신 브랜드명 'BRAND'가 신발 옆면과 텅에 선명하게 보임. 하이 디테일 시네마틱 조명, 맑은 낮 하늘 배경, 1:1 화면비."
 })},
 
 {id:'case3',part:2,label:'Case 3. 모델컷 - 뷰티',html:caseSlide({
@@ -813,7 +862,8 @@ const SLIDES = [
   title:'Case 3. 모델컷 - 뷰티',model:'씨드림',
   before:"이 한국인 뷰티화보 이미지를 생성하기 위한 프롬프트를 재구성하고, T2I로 상업용 뷰티화보 시안 1:1로 만들어줘. 씨드림을 사용해줘.",
   beforeEn:"Reconstruct the prompt used to generate this Korean beauty editorial image, then use T2I to make a 1:1 commercial beauty editorial concept. Use Seedream.",
-  after:"High-end skincare brand campaign. A stunning Korean model with unique facial features, emphasizing luminous porcelain skin. She holds a small white square skincare product near her face. Her expression is serene and confident. Background is a soft-focus garden with delicate pastel flowers and natural lighting. Pure, premium, and sophisticated aesthetic. Professional beauty editorial style. 1:1 ratio."
+  after:"High-end skincare brand campaign. A stunning Korean model with unique facial features, emphasizing luminous porcelain skin. She holds a small white square skincare product near her face. Her expression is serene and confident. Background is a soft-focus garden with delicate pastel flowers and natural lighting. Pure, premium, and sophisticated aesthetic. Professional beauty editorial style. 1:1 ratio.",
+  afterKo:"하이엔드 스킨케어 브랜드 캠페인. 개성 있는 이목구비의 매혹적인 한국인 모델, 빛이 나는 도자기 같은 피부를 강조. 얼굴 근처에 작은 흰색 사각형 스킨케어 제품을 들고 있음. 표정은 고요하고 자신감 있음. 배경은 초점이 부드럽게 나간 정원, 섬세한 파스텔 꽃들과 자연광. 순수하고 프리미엄하며 세련된 감성. 전문적인 뷰티 에디토리얼 스타일. 1:1 비율."
 })},
 
 {id:'case4',part:2,label:'Case 4. 모델컷 제품 변경 - 뷰티',html:caseSlide({
@@ -821,7 +871,8 @@ const SLIDES = [
   title:'Case 4. 모델컷 제품 변경 - 뷰티',model:'나노바나나 프로',
   before:"1번 이미지 모델이 흰색 사각형 물체 대신 2번 이미지의 '브랜드 세럼' 제품을 자연스럽게 들고 있도록 수정해줘. 모델, 구도, 배경은 바뀌지 않고 제품만 바뀌게 해줘. 나노바나나프로 4K를 사용해줘.",
   beforeEn:"Modify the model in image 1 so she naturally holds the 'Brand Serum' product from image 2 instead of the white square object. Keep the model, composition, and background unchanged; swap only the product. Use Nano Banana Pro 4K.",
-  after:"Modify the woman's hand to naturally grasp the side of the 'BRAND SERUM' bottle using all fingers. The hand should be wrapped around the body of the clear glass bottle in a firm yet elegant beauty product pose. Ensure the 'BRAND SERUM' bottle remains prominent and clearly visible. Keep the model's face, hair, and the blurred floral background identical to the first reference image. 4K resolution, cinematic lighting, realistic skin texture and hand anatomy."
+  after:"Modify the woman's hand to naturally grasp the side of the 'BRAND SERUM' bottle using all fingers. The hand should be wrapped around the body of the clear glass bottle in a firm yet elegant beauty product pose. Ensure the 'BRAND SERUM' bottle remains prominent and clearly visible. Keep the model's face, hair, and the blurred floral background identical to the first reference image. 4K resolution, cinematic lighting, realistic skin texture and hand anatomy.",
+  afterKo:"여성의 손을 수정해서 모든 손가락으로 'BRAND SERUM' 병 옆면을 자연스럽게 잡도록 해 줘. 손은 투명 유리병 몸체를 감싸 쥐되, 단단하면서도 우아한 뷰티 제품 포즈로. 'BRAND SERUM' 병은 계속 두드러지고 선명하게 보이도록 유지. 모델의 얼굴, 머리, 흐릿한 꽃 배경은 첫 레퍼런스 이미지와 동일하게 유지. 4K 해상도, 시네마틱 조명, 사실적인 피부 질감과 손 해부학."
 })},
 
 {id:'case5',part:2,label:'Case 5. 모델컷 - 패션',html:caseSlide({
@@ -829,7 +880,8 @@ const SLIDES = [
   title:'Case 5. 모델컷 - 패션',model:'나노바나나 프로',
   before:"이 패션화보 이미지를 생성하기 위한 프롬프트를 재구성하고, T2I로 상업용 패션화보 시안 1:1로 만들어줘. 나노바나나프로를 사용해줘.",
   beforeEn:"Reconstruct the prompt used to generate this fashion editorial image, then use T2I to make a 1:1 commercial fashion editorial concept. Use Nano Banana Pro.",
-  after:"A young woman with long, wavy blonde hair, eyes closed in a peaceful expression, and a gentle smile. She is in a crouching pose, with her legs tucked beneath her. She wears a vibrant deep green chunky knit sweater with a ribbed texture and a delicate white lace collar. Below the sweater, she has a crisp white pleated mini-skirt. She is wearing cream-colored ribbed socks that reach just below her knees and burgundy pointed-toe heels with an ankle strap. A smooth, structured brown leather handbag rests on her lap. The background is a minimalist off-white studio wall. The floor is a checkered pattern of light beige and cream tiles. Soft, even studio lighting. Fashion photography, editorial style, high detail, realistic."
+  after:"A young woman with long, wavy blonde hair, eyes closed in a peaceful expression, and a gentle smile. She is in a crouching pose, with her legs tucked beneath her. She wears a vibrant deep green chunky knit sweater with a ribbed texture and a delicate white lace collar. Below the sweater, she has a crisp white pleated mini-skirt. She is wearing cream-colored ribbed socks that reach just below her knees and burgundy pointed-toe heels with an ankle strap. A smooth, structured brown leather handbag rests on her lap. The background is a minimalist off-white studio wall. The floor is a checkered pattern of light beige and cream tiles. Soft, even studio lighting. Fashion photography, editorial style, high detail, realistic.",
+  afterKo:"긴 웨이브의 금발, 평화로운 표정으로 눈을 감고 은은한 미소를 짓는 젊은 여성. 다리를 아래로 접어 웅크린 자세. 골지 질감에 섬세한 화이트 레이스 카라가 달린 강렬한 딥그린 청키 니트 스웨터를 입고 있음. 스웨터 아래는 산뜻한 화이트 플리츠 미니스커트. 무릎 바로 아래까지 오는 크림색 골지 양말과 앵클 스트랩이 달린 버건디 포인티 토 힐 착용. 무릎 위에 매끄럽고 각진 브라운 가죽 핸드백. 배경은 미니멀한 오프화이트 스튜디오 벽. 바닥은 라이트 베이지와 크림 타일의 체크 패턴. 부드럽고 균일한 스튜디오 조명. 패션 포토그래피, 에디토리얼 스타일, 하이 디테일, 사실적."
 })},
 
 {id:'case6',part:2,label:'Case 6. 모델컷 제품 변경 - 패션',html:caseSlide({
@@ -837,7 +889,8 @@ const SLIDES = [
   title:'Case 6. 모델컷 제품 변경 - 패션',model:'나노바나나 프로',
   before:"1번 이미지 모델이 갈색 가방 대신 2번 이미지 '브랜드 가죽백'을 자연스럽게 들고 있게 해줘. 모델, 구도, 배경은 바뀌지 않게 해주고, 가방의 질감 디테일을 잘 살려줘. 나노바나나프로 4K를 사용해줘.",
   beforeEn:"Have the model in image 1 naturally hold the 'Brand Leather Bag' from image 2 instead of the brown bag. Keep the model, composition, and background unchanged, and preserve the bag's texture detail. Use Nano Banana Pro 4K.",
-  after:"Replace the brown bag with the blue 'BRAND' leather handbag from the reference. The model's peaceful expression, crouching pose, green sweater, and checkered floor must remain identical. Focus on rendering the \"BRAND\" brand text on the bag clearly and legibly in silver embossed letters. The texture of the blue leather should be crisp and high-quality. 4K resolution, studio fashion photography."
+  after:"Replace the brown bag with the blue 'BRAND' leather handbag from the reference. The model's peaceful expression, crouching pose, green sweater, and checkered floor must remain identical. Focus on rendering the \"BRAND\" brand text on the bag clearly and legibly in silver embossed letters. The texture of the blue leather should be crisp and high-quality. 4K resolution, studio fashion photography.",
+  afterKo:"갈색 가방을 레퍼런스의 블루 'BRAND' 가죽 핸드백으로 교체. 모델의 평화로운 표정, 웅크린 자세, 그린 스웨터, 체크 바닥은 반드시 동일하게 유지. 가방 위 \"BRAND\" 브랜드 글자를 실버 엠보스 서체로 선명하고 읽기 쉽게 렌더링하는 데 집중. 블루 가죽의 질감은 산뜻하고 고급스럽게. 4K 해상도, 스튜디오 패션 포토그래피."
 })},
 
 {id:'case7',part:2,label:'Case 7. 3D 캐릭터 - 만들기',html:caseSlide({
@@ -845,7 +898,8 @@ const SLIDES = [
   title:'Case 7. 3D 캐릭터 - 만들기',model:'Z-이미지',
   before:"유튜브에 애니메이션을 연재할 거야. 3D 클레이 스타일로 20대 한국인 남자 MZ 취준생 캐릭터를 만들어줘. Z이미지를 사용해줘.",
   beforeEn:"I'll be serializing an animation on YouTube. Create a 3D clay style character of a Korean man in his 20s — a Gen-Z job seeker. Use Z-Image.",
-  after:"A 20-year-old Korean male job seeker character in 3D clay animation style. Wearing a grey hoodie, cute and relatable expression. Clear clay textures and vibrant colors. 1:1 aspect ratio."
+  after:"A 20-year-old Korean male job seeker character in 3D clay animation style. Wearing a grey hoodie, cute and relatable expression. Clear clay textures and vibrant colors. 1:1 aspect ratio.",
+  afterKo:"3D 클레이 애니메이션 스타일의 20대 한국인 남성 취준생 캐릭터. 회색 후디를 입고, 귀엽고 공감이 가는 표정. 또렷한 클레이 질감과 생기 있는 색. 1:1 화면비."
 })},
 
 {id:'case8',part:2,label:'Case 8. 3D 캐릭터 - 활용하기',html:caseSlide({
@@ -853,7 +907,8 @@ const SLIDES = [
   title:'Case 8. 3D 캐릭터 - 활용하기',model:'씨드림',
   before:"다양한 상황에서의 시안 이미지 4분할컷으로 만들어줘. 씨드림을 사용해줘.",
   beforeEn:"Make a 4-panel concept image of the character in various situations. Use Seedream.",
-  after:"3D clay animation style, the same Korean male character in a grey hoodie. Scene 1: Sitting in front of a laptop at a desk, looking focused but tired, with a stack of books nearby. Scene 2: Cheering with arms raised and a bright smile, celebrating a job interview call. Scene 3: Eating ramen at a small table, looking lonely but cozy. Scene 4: Walking outside with a backpack, looking hopeful. Maintain the handcrafted clay texture and character features. 1:1 aspect ratio."
+  after:"3D clay animation style, the same Korean male character in a grey hoodie. Scene 1: Sitting in front of a laptop at a desk, looking focused but tired, with a stack of books nearby. Scene 2: Cheering with arms raised and a bright smile, celebrating a job interview call. Scene 3: Eating ramen at a small table, looking lonely but cozy. Scene 4: Walking outside with a backpack, looking hopeful. Maintain the handcrafted clay texture and character features. 1:1 aspect ratio.",
+  afterKo:"3D 클레이 애니메이션 스타일, 회색 후디를 입은 동일한 한국인 남성 캐릭터. 장면 1: 책상 앞 노트북 앞에 앉아 있음, 집중한 듯하지만 피곤한 표정, 옆에 책이 쌓여 있음. 장면 2: 두 팔을 들고 밝게 웃으며 환호, 면접 연락을 받고 기뻐하는 모습. 장면 3: 작은 테이블에서 라면을 먹고 있음, 외로우면서도 아늑한 느낌. 장면 4: 백팩을 메고 밖을 걷고 있음, 희망에 찬 표정. 손으로 빚은 듯한 클레이 질감과 캐릭터 특징은 그대로 유지. 1:1 화면비."
 })},
 
 {id:'case9',part:2,label:'Case 9. 광고 배너',html:caseSlide({
@@ -861,7 +916,8 @@ const SLIDES = [
   title:'Case 9. 광고 배너',model:'나노바나나 프로',
   before:"첫번째 광고소재의 레이아웃과 문구를 참고해서, 두번째 '브랜드 세럼' 제품의 광고소재를 만들어줘. 말풍선에는 '고농축 수분 진정 세럼 30ml'이라고 작성해줘.",
   beforeEn:"Referencing the layout and copy of the first ad creative, produce an ad creative for the second product, 'Brand Serum'. In the speech bubble, write '고농축 수분 진정 세럼 30ml'.",
-  after:"A high-end, professionally designed 4K commercial web advertisement banner for 'BRAND SERUM'. Strictly follow the layout and blue color palette (#4DA6FF) of the reference image (image 1). Replace the central product with the 'BRAND SERUM' bottle (image 2). Use bold, 3D-styled typography for '첫구매 100원' with strong outlines and drop shadows for maximum visibility against the vibrant blue gradient background. CRITICAL: In the speech bubble at the bottom left, the text MUST be '브랜드 세럼' followed by '고농축 수분 진정 세럼 30ml'. Do not use any other brand names. Include the Korean text 'ONLY 자사몰 2월 이벤트!' at the top inside a white pill-shaped container. Add floating, 3D circular coin graphic elements around the product. Ensure a clean, balanced, and professional composition. 4K resolution, 1:1 aspect ratio."
+  after:"A high-end, professionally designed 4K commercial web advertisement banner for 'BRAND SERUM'. Strictly follow the layout and blue color palette (#4DA6FF) of the reference image (image 1). Replace the central product with the 'BRAND SERUM' bottle (image 2). Use bold, 3D-styled typography for '첫구매 100원' with strong outlines and drop shadows for maximum visibility against the vibrant blue gradient background. CRITICAL: In the speech bubble at the bottom left, the text MUST be '브랜드 세럼' followed by '고농축 수분 진정 세럼 30ml'. Do not use any other brand names. Include the Korean text 'ONLY 자사몰 2월 이벤트!' at the top inside a white pill-shaped container. Add floating, 3D circular coin graphic elements around the product. Ensure a clean, balanced, and professional composition. 4K resolution, 1:1 aspect ratio.",
+  afterKo:"'BRAND SERUM'을 위한 하이엔드 전문 디자인 4K 상업용 웹 광고 배너. 레퍼런스 이미지(이미지 1)의 레이아웃과 블루 컬러 팔레트(#4DA6FF)를 엄격하게 따를 것. 중앙 제품은 'BRAND SERUM' 병(이미지 2)으로 교체. '첫구매 100원'은 굵고 3D 스타일의 타이포그래피, 강한 외곽선과 드롭 섀도우로 강렬한 블루 그라데이션 배경 위에서 가시성 극대화. 중요: 좌하단 말풍선의 텍스트는 반드시 '브랜드 세럼' 다음에 '고농축 수분 진정 세럼 30ml'. 다른 브랜드명은 절대 사용 금지. 상단에는 흰색 알약 모양 컨테이너 안에 한글 텍스트 'ONLY 자사몰 2월 이벤트!' 포함. 제품 주변에는 떠 있는 3D 원형 코인 그래픽 요소 추가. 깔끔하고 균형 잡힌 프로페셔널한 구도. 4K 해상도, 1:1 화면비."
 })},
 
 {id:'case10',part:2,label:'Case 10. 포스터',html:caseSlide({
@@ -869,7 +925,8 @@ const SLIDES = [
   title:'Case 10. 포스터',model:'나노바나나 프로',
   before:"첫번째 포스터를 참고해서, 두번째 브랜드 청포도 에이드의 포스터를 만들어줘. 문구와 비주얼 요소를 적절히 수정해줘.",
   beforeEn:"Referencing the first poster, create a poster for the second product, Brand Green Grape Ade. Adjust the copy and visual elements as appropriate.",
-  after:"A premium 3:4 promotional poster for 'Brand Cafe' Green Grape Ade, inspired by the reference pistachio poster. Background: Deep green solid color. Layout: The Green Grape Ade glass from the reference image is placed on the right side. On the left side, the text 'GREEN GRAPE ADE' is written in a large, bold, stylized font. On the right side, include the text 'THE BEST IS HERE AT BRAND CAFE'. Visuals: Scatter fresh green grapes and ice cubes around the glass for a dynamic and fresh feel. Style: High-contrast, sophisticated cafe poster, 2K resolution. Maintain the 'brand' logo on the glass."
+  after:"A premium 3:4 promotional poster for 'Brand Cafe' Green Grape Ade, inspired by the reference pistachio poster. Background: Deep green solid color. Layout: The Green Grape Ade glass from the reference image is placed on the right side. On the left side, the text 'GREEN GRAPE ADE' is written in a large, bold, stylized font. On the right side, include the text 'THE BEST IS HERE AT BRAND CAFE'. Visuals: Scatter fresh green grapes and ice cubes around the glass for a dynamic and fresh feel. Style: High-contrast, sophisticated cafe poster, 2K resolution. Maintain the 'brand' logo on the glass.",
+  afterKo:"레퍼런스 피스타치오 포스터에서 영감을 받은 'Brand Cafe' 청포도 에이드의 프리미엄 3:4 홍보 포스터. 배경: 딥그린 단색. 레이아웃: 레퍼런스 이미지의 청포도 에이드 잔을 오른쪽에 배치. 왼쪽에는 'GREEN GRAPE ADE'라는 텍스트를 크고 굵은 스타일화된 서체로 표기. 오른쪽에는 'THE BEST IS HERE AT BRAND CAFE' 텍스트를 포함. 비주얼: 잔 주변에 신선한 청포도와 얼음 조각을 흩뿌려 다이내믹하고 프레시한 느낌 연출. 스타일: 대비가 강한 세련된 카페 포스터, 2K 해상도. 잔 위의 'brand' 로고는 그대로 유지."
 })},
 
 /* ==================== PART 3 · 나노 바나나 프롬프트 사전 ==================== */
@@ -919,12 +976,12 @@ const SLIDES = [
         <div class="p3-sub edit" contenteditable="true" style="margin-top:14px">원칙 3 · 한 번에 한 곳만 고쳐라</div>
         <p class="p3-p edit" contenteditable="true">결과가 마음에 안 들 때 프롬프트를 통째로 다시 쓰는 사람이 많습니다. 이 모델은 <b>대화로 이어서 고치는</b> 방식이 훨씬 잘 듣습니다.</p>
         <div class="p3-sub edit" contenteditable="true" style="margin-top:14px">원칙 4 · 지켜야 할 것을 말하라</div>
-        ${prompt_block('Change only the wall color to soft beige.\nKeep the person, pose, lighting, and\nevery other detail exactly the same.',true)}
+        ${prompt_block('Change only the wall color to soft beige.\nKeep the person, pose, lighting, and\nevery other detail exactly the same.',true,'벽 색만 부드러운 베이지로 바꿔 줘.\n인물, 자세, 조명, 그리고 다른 모든\n디테일은 완전히 똑같이 유지해 줘.')}
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">원칙 2 · 사진가의 어휘를 써라</div>
         <p class="p3-p edit" contenteditable="true">이 모델은 촬영 용어를 정확히 이해합니다. "예쁘게"보다 <b>어떤 렌즈로, 어떤 빛에서, 어떤 각도로</b> 찍었는지 말하는 편이 훨씬 잘 통합니다.</p>
-        ${prompt_block("// 막연한 표현\na pretty photo of a bag\n\n// 촬영 용어로 바꾸면\nProduct photograph of a leather bag on\na matte grey surface, lit by a large\nsoftbox from the left, shot on an 85mm\nlens at f/4, shallow depth of field.",true)}
+        ${prompt_block("// 막연한 표현\na pretty photo of a bag\n\n// 촬영 용어로 바꾸면\nProduct photograph of a leather bag on\na matte grey surface, lit by a large\nsoftbox from the left, shot on an 85mm\nlens at f/4, shallow depth of field.",true,"// 막연한 표현\n예쁜 가방 사진\n\n// 촬영 용어로 바꾸면\n무광 회색 바닥 위 가죽 가방 제품 사진.\n왼쪽에서 대형 소프트박스로 조명,\n85mm 렌즈 f/4로 촬영, 얕은 심도.")}
         <div class="p3-sub edit" contenteditable="true" style="margin-top:14px">원칙 5 · 길게 쓰지 말고 쪼개라</div>
         <p class="p3-p edit" contenteditable="true">긴 프롬프트 하나보다 <b>기본 장면을 먼저 만들고 편집으로 쌓아 올리는</b> 편이 정확합니다.</p>
         <div class="p3-hero edit" contenteditable="true">묘사하고, 한 번에 하나씩 고친다.</div>
@@ -955,7 +1012,7 @@ const SLIDES = [
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">한 문장으로 시작해 보기</div>
-        ${prompt_block("A candid photograph of a Korean man in\nhis thirties walking through a narrow\nalley in Seoul at dusk. He wears a grey\nwool coat and looks slightly away from\nthe camera. Warm shop signs glow behind\nhim, slightly out of focus. Shot on a\n35mm lens at f/2, natural evening light,\nsoft film grain.")}
+        ${prompt_block("A candid photograph of a Korean man in\nhis thirties walking through a narrow\nalley in Seoul at dusk. He wears a grey\nwool coat and looks slightly away from\nthe camera. Warm shop signs glow behind\nhim, slightly out of focus. Shot on a\n35mm lens at f/2, natural evening light,\nsoft film grain.",false,"30대 한국인 남성이 해 질 녘 서울의\n좁은 골목을 걷는 자연스러운 스냅 사진.\n회색 울코트를 입고 카메라에서 시선을\n살짝 비껴 보고 있음. 뒤로는 따뜻한\n상점 간판들이 살짝 초점이 나간 채\n은은하게 빛남. 35mm 렌즈 f/2로 촬영,\n자연스러운 저녁 빛, 부드러운 필름 입자감.")}
         <p class="p3-p muted edit" contenteditable="true">이 한 덩어리 안에 피사체, 나이, 국적, 장소, 시간, 의상, 시선, 배경, 렌즈, 조리개, 빛, 질감이 전부 들어 있습니다.</p>
       </div>
     </div>
@@ -979,7 +1036,7 @@ const SLIDES = [
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">칸을 따라 쓴 예</div>
-        ${prompt_block("// 매체\nEditorial portrait photograph\n\n// 피사체\nof a Korean woman in her early forties\nwearing a charcoal linen blazer,\n\n// 동작\nstanding with arms crossed, looking\ndirectly into the camera with a calm\nexpression,\n\n// 환경\nin a bright minimal office,\n\n// 조명\nlit by soft window light from the right\nwith gentle shadow falloff,\n\n// 카메라\nshot on an 85mm lens at f/2.8, waist-up\nframing, muted natural color grading.",true)}
+        ${prompt_block("// 매체\nEditorial portrait photograph\n\n// 피사체\nof a Korean woman in her early forties\nwearing a charcoal linen blazer,\n\n// 동작\nstanding with arms crossed, looking\ndirectly into the camera with a calm\nexpression,\n\n// 환경\nin a bright minimal office,\n\n// 조명\nlit by soft window light from the right\nwith gentle shadow falloff,\n\n// 카메라\nshot on an 85mm lens at f/2.8, waist-up\nframing, muted natural color grading.",true,"// 매체\n에디토리얼 인물 사진.\n\n// 피사체\n차콜색 리넨 블레이저를 입은\n40대 초반 한국인 여성.\n\n// 동작\n팔짱을 낀 채 서서 차분한 표정으로\n카메라를 정면으로 응시.\n\n// 환경\n밝고 미니멀한 사무실.\n\n// 조명\n오른쪽에서 들어오는 부드러운 창가\n자연광, 완만한 그림자 감쇠.\n\n// 카메라\n85mm 렌즈 f/2.8로 촬영, 웨이스트업\n프레이밍, 절제된 자연 색감.")}
       </div>
     </div>
     ${F.replace('{PART}','Part 3.  나노 바나나 프롬프트 사전')}
@@ -1007,7 +1064,7 @@ const SLIDES = [
         </div>
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:12px">부정문 대신 긍정문으로</div>
         <p class="p3-p edit" contenteditable="true">"모자를 쓰지 마"보다 <b>"머리를 드러낸 채로"</b>가 훨씬 잘 통합니다.</p>
-        ${prompt_block("// 잘 안 되는 쪽\nno hat, no glasses, no text\n\n// 잘 되는 쪽\nbare head, clear face, plain background",true)}
+        ${prompt_block("// 잘 안 되는 쪽\nno hat, no glasses, no text\n\n// 잘 되는 쪽\nbare head, clear face, plain background",true,"// 잘 안 되는 쪽\n모자 없음, 안경 없음, 글자 없음\n\n// 잘 되는 쪽\n머리를 드러낸 채로, 얼굴은 선명하게,\n배경은 단색으로")}
       </div>
     </div>
     ${F.replace('{PART}','Part 3.  나노 바나나 프롬프트 사전')}
@@ -1027,14 +1084,14 @@ const SLIDES = [
           <div class="trow"><div class="k">상세페이지 세로컷</div><div class="v">4:5 또는 3:4</div></div>
           <div class="trow"><div class="k">증명사진</div><div class="v">3:4에 가깝게</div></div>
         </div>
-        ${prompt_block("... vertical 4:5 composition with\nheadroom above the subject.",true)}
+        ${prompt_block("... vertical 4:5 composition with\nheadroom above the subject.",true,"... 세로 4:5 구도, 피사체 머리 위에\n여백을 두고.")}
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">여백을 미리 비워 두기</div>
         <p class="p3-p edit" contenteditable="true">나중에 글씨를 얹을 이미지라면 <b>그 자리를 비워 달라고</b> 미리 말해 두는 편이 좋습니다.</p>
-        ${prompt_block("Leave the upper third of the frame\nmostly empty and low in detail, so\ntext can be placed there later.",true)}
+        ${prompt_block("Leave the upper third of the frame\nmostly empty and low in detail, so\ntext can be placed there later.",true,"프레임의 위쪽 3분의 1은 거의 비우고\n디테일을 낮게 유지해서, 나중에 그\n자리에 글자를 얹을 수 있게 해 줘.")}
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:12px">같은 장면을 여러 컷으로</div>
-        ${prompt_block("Keep the subject, wardrobe, and lighting\nidentical. Give me the same scene from\nthree angles: wide, waist-up, close-up.",true)}
+        ${prompt_block("Keep the subject, wardrobe, and lighting\nidentical. Give me the same scene from\nthree angles: wide, waist-up, close-up.",true,"피사체, 의상, 조명은 완전히 동일하게\n유지. 같은 장면을 세 가지 앵글로 만들어 줘:\n와이드, 웨이스트업, 클로즈업.")}
       </div>
     </div>
     ${F.replace('{PART}','Part 3.  나노 바나나 프롬프트 사전')}
@@ -1058,7 +1115,7 @@ const SLIDES = [
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">통째로 쓰는 기본 틀</div>
-        ${prompt_block("[Photograph / Illustration / 3D render]\nof [subject: nationality, age, clothing],\n[action and expression],\nin [place, time of day, background],\nlit by [light source and quality],\nshot on a [lens] at [aperture],\n[framing], [mood and color grading].")}
+        ${prompt_block("[Photograph / Illustration / 3D render]\nof [subject: nationality, age, clothing],\n[action and expression],\nin [place, time of day, background],\nlit by [light source and quality],\nshot on a [lens] at [aperture],\n[framing], [mood and color grading].",false,"[사진 / 일러스트 / 3D 렌더]\n피사체: [국적, 나이대, 의상],\n[동작과 표정],\n[장소, 시간대, 배경]에서,\n[광원과 성질]로 조명,\n[렌즈] [조리개]로 촬영,\n[프레이밍], [분위기와 색보정].")}
         <div class="p3-note edit" contenteditable="true">이 틀을 메모장에 붙여 두고 대괄호만 갈아 끼우세요. 이 책의 모든 프롬프트가 이 구조 위에 서 있습니다.</div>
       </div>
     </div>
@@ -1081,7 +1138,7 @@ const SLIDES = [
     <div class="p3-cols">
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">링크드인·회사 소개용</div>
-        ${prompt_block("Professional headshot photograph of a\nKorean man in his late thirties wearing\na navy suit and white shirt. He faces\nthe camera with a relaxed, confident\nexpression and a slight smile.\nBackground is a clean light grey studio\nbackdrop. Lit by a large softbox at\n45 degrees from the left with a subtle\nfill on the right. Shot on an 85mm lens\nat f/2.8, chest-up framing, natural skin\ntexture, neutral color grading.")}
+        ${prompt_block("Professional headshot photograph of a\nKorean man in his late thirties wearing\na navy suit and white shirt. He faces\nthe camera with a relaxed, confident\nexpression and a slight smile.\nBackground is a clean light grey studio\nbackdrop. Lit by a large softbox at\n45 degrees from the left with a subtle\nfill on the right. Shot on an 85mm lens\nat f/2.8, chest-up framing, natural skin\ntexture, neutral color grading.",false,"네이비 슈트에 흰 셔츠를 입은 30대 후반\n한국인 남성의 전문 헤드샷 사진.\n편안하고 자신감 있는 표정에 옅은 미소로\n카메라를 정면 응시. 배경은 깔끔한 라이트\n그레이 스튜디오 배경지. 왼쪽 45도에서\n대형 소프트박스로 조명, 오른쪽은 은은한\n필광. 85mm 렌즈 f/2.8로 촬영, 체스트업\n프레이밍, 자연스러운 피부 질감, 중성적인\n색보정.")}
         <p class="p3-p muted edit" contenteditable="true"><b>natural skin texture</b>를 넣는 이유가 있습니다. 이 말이 없으면 피부가 지나치게 매끈하게 나와 인형 같아집니다.</p>
       </div>
       <div class="p3-col">
@@ -1095,7 +1152,7 @@ const SLIDES = [
           <div class="trow"><div class="k">묵직하고 격식</div><div class="v">dark backdrop, low key lighting</div></div>
         </div>
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:12px">캐주얼 프로필</div>
-        ${prompt_block("... wearing a plain white t-shirt and\nseated on a wooden stool, laughing\nnaturally with eyes slightly closed.\nBackground is a bright studio wall.",true)}
+        ${prompt_block("... wearing a plain white t-shirt and\nseated on a wooden stool, laughing\nnaturally with eyes slightly closed.\nBackground is a bright studio wall.",true,"... 무지 흰 티셔츠를 입고 나무 스툴에\n앉아, 눈을 살짝 감고 자연스럽게 웃는 중.\n배경은 밝은 스튜디오 벽.")}
       </div>
     </div>
     ${F.replace('{PART}','Part 3.  나노 바나나 프롬프트 사전')}
@@ -1108,7 +1165,7 @@ const SLIDES = [
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">한국 규격에 맞추려면</div>
         <p class="p3-p edit" contenteditable="true">이력서나 서류에 쓰는 증명사진은 규격이 정해져 있습니다. 정면, 흰 배경, 어깨까지, 그림자 없음. 프롬프트에도 그대로 옮기면 됩니다.</p>
-        ${prompt_block("ID photograph of a Korean woman in her\ntwenties for an official document.\nShe faces the camera straight on with a\nneutral, closed-mouth expression, both\nears and eyebrows visible, hair tucked\nbehind the shoulders. She wears a plain\nwhite collared shirt. Pure white\nbackground with no shadow. Even frontal\nlighting, no harsh highlights. Head and\nshoulders only, centered, 3:4 vertical\nframing. Sharp focus, natural skin.")}
+        ${prompt_block("ID photograph of a Korean woman in her\ntwenties for an official document.\nShe faces the camera straight on with a\nneutral, closed-mouth expression, both\nears and eyebrows visible, hair tucked\nbehind the shoulders. She wears a plain\nwhite collared shirt. Pure white\nbackground with no shadow. Even frontal\nlighting, no harsh highlights. Head and\nshoulders only, centered, 3:4 vertical\nframing. Sharp focus, natural skin.",false,"공식 서류용 20대 한국인 여성의 증명사진.\n카메라를 정면으로 바라보며 입을 다문\n중립적인 표정, 양쪽 귀와 눈썹이 모두\n보이고, 머리는 어깨 뒤로 넘겨서. 무지의\n흰 카라 셔츠 착용. 그림자 없는 순백\n배경. 균일한 정면광, 강한 하이라이트\n없음. 얼굴과 어깨까지만, 중앙 정렬,\n3:4 세로 프레이밍. 선명한 초점,\n자연스러운 피부.")}
       </div>
       <div class="p3-col">
         <div class="p3-note edit" contenteditable="true">실제 제출용으로 쓰기 전에 <b>규격을 반드시 확인하세요.</b> 여권이나 관공서 서류는 AI로 만든 사진을 인정하지 않는 경우가 많습니다. 사내 인트라넷 프로필이나 발표 자료처럼 규정이 느슨한 곳에 쓰는 것이 안전합니다.</div>
@@ -1162,7 +1219,7 @@ const SLIDES = [
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">기본값은 한국 얼굴이 아니다</div>
         <p class="p3-p edit" contenteditable="true">국적을 적지 않으면 서구권 얼굴이 나옵니다. <b>Korean</b>만 넣어도 크게 달라지지만, 더 정확히 하려면 몇 가지를 덧붙일 수 있습니다.</p>
-        ${prompt_block("a Korean woman in her late twenties\nwith straight black hair, warm ivory\nskin tone, and soft natural makeup",true)}
+        ${prompt_block("a Korean woman in her late twenties\nwith straight black hair, warm ivory\nskin tone, and soft natural makeup",true,"20대 후반 한국인 여성, 곧은 검은 머리,\n따뜻한 아이보리 톤 피부, 부드럽고\n자연스러운 화장")}
         <p class="p3-p edit" contenteditable="true">반대로 특정 연예인이나 실존 인물을 지목하는 것은 피하세요. 초상권 문제가 생기고, 모델도 대체로 거부합니다.</p>
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:10px">국내 보정 감성</div>
         <ul class="p3-list">
@@ -1248,7 +1305,7 @@ const SLIDES = [
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">기준을 만드는 첫 컷</div>
         <p class="p3-p edit" contenteditable="true">먼저 <b>기준이 될 인물 한 장</b>을 제대로 만드세요. 이 컷의 품질이 이후 전부를 결정합니다.</p>
-        ${prompt_block("Character reference sheet photograph of\na Korean woman in her mid twenties.\nShoulder-length black hair with a middle\npart, round wire-frame glasses, a small\nmole under her left eye. She wears a\ncream knit sweater. Neutral expression,\nfacing the camera directly.\nPlain light grey background, even\nstudio lighting, sharp focus,\nnatural skin texture.")}
+        ${prompt_block("Character reference sheet photograph of\na Korean woman in her mid twenties.\nShoulder-length black hair with a middle\npart, round wire-frame glasses, a small\nmole under her left eye. She wears a\ncream knit sweater. Neutral expression,\nfacing the camera directly.\nPlain light grey background, even\nstudio lighting, sharp focus,\nnatural skin texture.",false,"20대 중반 한국인 여성의 캐릭터 레퍼런스\n시트 사진. 가르마를 가운데 탄 어깨\n길이 검은 머리, 라운드 와이어 프레임\n안경, 왼쪽 눈 아래 작은 점. 크림색\n니트 스웨터 착용. 중립적인 표정으로\n카메라를 정면 응시. 라이트 그레이 단색\n배경, 균일한 스튜디오 조명, 선명한 초점,\n자연스러운 피부 질감.")}
         <div class="p3-note edit" contenteditable="true"><b>특징을 두세 개 심어 두세요.</b> 안경, 점, 머리 가르마처럼 눈에 띄는 표식이 있으면 모델이 그 인물을 훨씬 잘 붙잡습니다. 특징 없는 평범한 얼굴이 가장 흔들립니다.</div>
       </div>
     </div>
@@ -1262,7 +1319,7 @@ const SLIDES = [
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">첨부하고 이렇게 말한다</div>
         <p class="p3-p edit" contenteditable="true">기준 사진을 올린 다음, 같은 인물을 다른 장면에 세우라고 요청합니다. 무엇을 유지할지 <b>이름을 붙여 말하는 것</b>이 핵심입니다.</p>
-        ${prompt_block("Using the person in the attached image,\ncreate a new photograph of her sitting\nat a wooden desk in a bright home office,\ntyping on a laptop and looking down at\nthe screen.\n\nKeep her face, hairstyle, glasses, and\nskin tone exactly as in the reference.\nChange only the pose, outfit, and\nsetting. Shot on a 50mm lens at f/2.8,\nsoft morning window light from the left.")}
+        ${prompt_block("Using the person in the attached image,\ncreate a new photograph of her sitting\nat a wooden desk in a bright home office,\ntyping on a laptop and looking down at\nthe screen.\n\nKeep her face, hairstyle, glasses, and\nskin tone exactly as in the reference.\nChange only the pose, outfit, and\nsetting. Shot on a 50mm lens at f/2.8,\nsoft morning window light from the left.",false,"첨부한 이미지의 인물을 그대로 써서,\n밝은 홈오피스의 나무 책상에 앉아 노트북을\n치며 화면을 내려다보고 있는 새 사진을\n만들어 줘.\n\n얼굴, 헤어스타일, 안경, 피부톤은 레퍼런스와\n완전히 동일하게 유지. 자세, 의상, 배경만\n바꿔 줘. 50mm 렌즈 f/2.8로 촬영,\n왼쪽에서 들어오는 부드러운 아침 창가 빛.")}
         <p class="p3-p muted edit" contenteditable="true">"얼굴, 머리 모양, 안경, 피부톤" — 이렇게 유지할 항목을 나열하는 편이 "같은 사람으로"보다 정확합니다.</p>
       </div>
       <div class="p3-col">
@@ -1295,7 +1352,7 @@ const SLIDES = [
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">여러 컷을 한 번에</div>
-        ${prompt_block("Create four images of the same person\nfrom the reference, keeping her face and\nhairstyle identical in all of them:\n\n1. Standing outdoors in a park, autumn\n   leaves behind her, three-quarter view.\n2. Seated in a cafe by the window,\n   holding a paper cup, candid.\n3. Walking down a city street at night,\n   neon signs blurred behind her.\n4. Close-up portrait against a plain\n   white wall, soft frontal light.\n\nSame wardrobe throughout: cream sweater\nand dark jeans. Consistent color grading\nacross all four.")}
+        ${prompt_block("Create four images of the same person\nfrom the reference, keeping her face and\nhairstyle identical in all of them:\n\n1. Standing outdoors in a park, autumn\n   leaves behind her, three-quarter view.\n2. Seated in a cafe by the window,\n   holding a paper cup, candid.\n3. Walking down a city street at night,\n   neon signs blurred behind her.\n4. Close-up portrait against a plain\n   white wall, soft frontal light.\n\nSame wardrobe throughout: cream sweater\nand dark jeans. Consistent color grading\nacross all four.",false,"레퍼런스와 같은 인물로 네 장의 이미지를\n만들어 줘. 네 장 모두 얼굴과 헤어스타일은\n동일하게 유지:\n\n1. 공원에서 서 있음, 뒤로 가을 낙엽,\n   사분면 앵글.\n2. 카페 창가 자리에 앉아 종이컵을\n   들고 있음, 자연스러운 스냅.\n3. 밤 도심 거리를 걷고 있음, 뒤로 네온\n   사인들이 흐릿하게.\n4. 무지 흰 벽 앞 클로즈업 인물사진,\n   부드러운 정면광.\n\n네 장 모두 같은 의상: 크림색 스웨터와\n어두운 청바지. 네 장 전부 색감을 통일해서.")}
         <div class="p3-note edit" contenteditable="true">마지막 줄을 꼭 넣으세요. <b>consistent color grading</b>이 없으면 네 장의 색감이 제각각이라 한 세트로 안 보입니다.</div>
       </div>
     </div>
@@ -1319,10 +1376,10 @@ const SLIDES = [
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">되돌리는 프롬프트</div>
-        ${prompt_block("The face has drifted from the original.\nGo back to the attached reference and\nmatch it exactly: same eye shape, same\nnose, same jawline, same hairstyle.\nKeep the current pose and background.")}
+        ${prompt_block("The face has drifted from the original.\nGo back to the attached reference and\nmatch it exactly: same eye shape, same\nnose, same jawline, same hairstyle.\nKeep the current pose and background.",false,"얼굴이 원본에서 벗어났어. 첨부한\n레퍼런스로 돌아가서 정확히 맞춰 줘:\n같은 눈 모양, 같은 코, 같은 턱선,\n같은 헤어스타일. 지금 자세와 배경은\n그대로 유지.")}
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:12px">부분만 바꾸기</div>
         <p class="p3-p edit" contenteditable="true">표정이나 각도를 바꿀 때는 <b>얼굴 자체는 건드리지 말라</b>고 못 박으세요.</p>
-        ${prompt_block("Change only her expression to a warm\nsmile with visible teeth. Do not alter\nher facial structure, hairstyle, or\nany other part of the image.",true)}
+        ${prompt_block("Change only her expression to a warm\nsmile with visible teeth. Do not alter\nher facial structure, hairstyle, or\nany other part of the image.",true,"표정만 치아가 보이는 따뜻한 미소로\n바꿔 줘. 얼굴 구조, 헤어스타일, 그리고\n이미지의 다른 어떤 부분도 바꾸지\n말아 줘.")}
       </div>
     </div>
     ${F.replace('{PART}','Part 3.  나노 바나나 프롬프트 사전')}
@@ -1377,13 +1434,13 @@ const SLIDES = [
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">스마트스토어 대표 이미지</div>
         <p class="p3-p edit" contenteditable="true">국내 오픈마켓 대표 이미지는 대개 <b>정사각형, 흰 배경, 제품만</b>입니다. 규격이 정해져 있으니 프롬프트도 단순해집니다.</p>
-        ${prompt_block("Product photograph of a matte black\nstainless steel tumbler standing upright\non a pure white background.\nEven, shadowless studio lighting with a\nsoft reflection directly beneath the\nproduct. The entire product is in sharp\nfocus from top to bottom. Centered\ncomposition with generous margin on all\nsides. Square 1:1 framing, true-to-life\ncolor, no props.")}
+        ${prompt_block("Product photograph of a matte black\nstainless steel tumbler standing upright\non a pure white background.\nEven, shadowless studio lighting with a\nsoft reflection directly beneath the\nproduct. The entire product is in sharp\nfocus from top to bottom. Centered\ncomposition with generous margin on all\nsides. Square 1:1 framing, true-to-life\ncolor, no props.",false,"순백 배경 위에 똑바로 세워진 무광 검정\n스테인리스 텀블러의 제품 사진.\n균일하고 그림자 없는 스튜디오 조명,\n제품 바로 아래에 부드러운 반사. 위에서\n아래까지 제품 전체가 선명한 초점.\n사방에 넉넉한 여백을 둔 중앙 구도.\n정사각형 1:1 프레이밍, 실물과 같은 색,\n소품 없음.")}
         <p class="p3-p muted edit" contenteditable="true"><b>no props</b>를 넣는 이유가 있습니다. 이 말이 없으면 나뭇잎이나 돌멩이 같은 장식이 제멋대로 붙습니다.</p>
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">가진 사진을 누끼로</div>
         <p class="p3-p edit" contenteditable="true">이미 찍은 제품 사진이 있다면 배경만 걷어내는 편이 빠릅니다.</p>
-        ${prompt_block("Remove the background from the attached\nproduct photo and place the product on a\npure white background. Keep the product's\nshape, color, texture, and label text\nexactly unchanged. Add a soft natural\nshadow beneath it.")}
+        ${prompt_block("Remove the background from the attached\nproduct photo and place the product on a\npure white background. Keep the product's\nshape, color, texture, and label text\nexactly unchanged. Add a soft natural\nshadow beneath it.",false,"첨부한 제품 사진에서 배경을 제거하고,\n제품을 순백 배경에 얹어 줘. 제품의\n형태, 색, 질감, 라벨 글자는 완전히\n그대로 유지. 아래쪽에는 부드럽고\n자연스러운 그림자를 넣어 줘.")}
         <div class="p3-note edit" contenteditable="true"><b>label text exactly unchanged</b>가 핵심입니다. 이 말이 없으면 제품에 적힌 글자를 모델이 새로 지어냅니다. 브랜드명이 엉뚱하게 바뀐 채 업로드되는 사고가 여기서 납니다.</div>
       </div>
     </div>
@@ -1397,10 +1454,10 @@ const SLIDES = [
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">라이프스타일 컷</div>
         <p class="p3-p edit" contenteditable="true">대표 이미지가 정보를 준다면, 연출컷은 <b>쓰는 장면</b>을 보여 줍니다. 배경과 소품과 빛을 함께 지정하세요.</p>
-        ${prompt_block("Lifestyle product photograph of a matte\nblack tumbler placed on a light oak desk\nbeside an open notebook and a pair of\nreading glasses. Morning sunlight comes\nthrough a window on the left, casting a\nlong soft shadow across the desk.\nShot on a 50mm lens at f/2.5, slight\ntop-down angle, warm natural tones.")}
+        ${prompt_block("Lifestyle product photograph of a matte\nblack tumbler placed on a light oak desk\nbeside an open notebook and a pair of\nreading glasses. Morning sunlight comes\nthrough a window on the left, casting a\nlong soft shadow across the desk.\nShot on a 50mm lens at f/2.5, slight\ntop-down angle, warm natural tones.",false,"라이트 오크 책상 위에 놓인 무광 검정\n텀블러의 라이프스타일 제품 사진.\n옆에는 펼쳐진 노트와 독서 안경 한 쌍.\n왼쪽 창으로 들어오는 아침 햇살이 책상을\n가로질러 길고 부드러운 그림자를 드리움.\n50mm 렌즈 f/2.5로 촬영, 살짝 위에서\n내려다보는 앵글, 따뜻한 자연 톤.")}
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:12px">소품은 두세 개까지</div>
         <p class="p3-p edit" contenteditable="true">소품이 많아질수록 제품이 묻힙니다. 두세 개로 제한하고 제품보다 흐리게 두라고 지정하세요.</p>
-        ${prompt_block("Props stay secondary: smaller than the\nproduct and slightly out of focus.",true)}
+        ${prompt_block("Props stay secondary: smaller than the\nproduct and slightly out of focus.",true,"소품은 보조 역할로: 제품보다 작고\n초점이 살짝 나가게.")}
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">배경 톤 고르기</div>
@@ -1436,8 +1493,8 @@ const SLIDES = [
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">디테일컷과 구성품컷</div>
-        ${prompt_block("Extreme close-up photograph of the\nbrushed metal surface and the seam where\nthe lid meets the body. Raking side light\nreveals the fine texture. Shot on a 100mm\nmacro lens at f/5.6, sharp detail.",true)}
-        ${prompt_block("Flat lay photograph of the product with\nall its accessories arranged neatly on a\nplain white surface: the tumbler, its\nlid, a cleaning brush, and a small\ninstruction card. Shot straight down from\nabove, even soft lighting, evenly spaced\nwith generous margins.",true)}
+        ${prompt_block("Extreme close-up photograph of the\nbrushed metal surface and the seam where\nthe lid meets the body. Raking side light\nreveals the fine texture. Shot on a 100mm\nmacro lens at f/5.6, sharp detail.",true,"헤어라인 메탈 표면과 뚜껑이 본체와\n맞물리는 이음새 부분의 초근접 사진.\n옆에서 스치듯 들어오는 빛이 미세한\n질감을 드러냄. 100mm 매크로 렌즈 f/5.6로\n촬영, 선명한 디테일.")}
+        ${prompt_block("Flat lay photograph of the product with\nall its accessories arranged neatly on a\nplain white surface: the tumbler, its\nlid, a cleaning brush, and a small\ninstruction card. Shot straight down from\nabove, even soft lighting, evenly spaced\nwith generous margins.",true,"제품과 모든 부속품을 무지 흰 바닥에\n가지런히 배치한 플랫레이 사진: 텀블러,\n뚜껑, 세척 브러시, 그리고 작은 사용\n설명서 카드. 위에서 정확히 수직으로\n촬영, 균일한 부드러운 조명, 넉넉한\n여백을 두고 고르게 간격을 둠.")}
         <div class="p3-note edit" contenteditable="true">구성품컷은 <b>straight down from above</b>를 꼭 적으세요. 이 말이 없으면 비스듬한 각도로 나와서 물건들이 서로 가려집니다.</div>
       </div>
     </div>
@@ -1451,7 +1508,7 @@ const SLIDES = [
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">음식 사진</div>
         <p class="p3-p edit" contenteditable="true">음식은 <b>갓 만든 느낌</b>이 전부입니다. 김, 윤기, 흐르는 소스처럼 순간을 지정하세요.</p>
-        ${prompt_block("Food photograph of a bowl of Korean\nkimchi jjigae, steam rising from the\nsurface, tofu and pork visible in the\nred broth. Served in a black stone bowl\non a wooden table with side dishes\nslightly out of focus behind it.\nWarm overhead light from the back-left,\n45 degree angle, shot on a 50mm lens at\nf/3.5, rich appetizing color.")}
+        ${prompt_block("Food photograph of a bowl of Korean\nkimchi jjigae, steam rising from the\nsurface, tofu and pork visible in the\nred broth. Served in a black stone bowl\non a wooden table with side dishes\nslightly out of focus behind it.\nWarm overhead light from the back-left,\n45 degree angle, shot on a 50mm lens at\nf/3.5, rich appetizing color.",false,"한국식 김치찌개 한 그릇의 음식 사진.\n표면에서 김이 피어오르고, 붉은 국물\n속에 두부와 돼지고기가 보임. 검은 돌솥에\n담겨 있고, 나무 식탁 위에 놓임. 뒤로는\n반찬들이 살짝 초점이 나간 채 배치됨.\n뒤쪽 왼편 위에서 들어오는 따뜻한 빛,\n45도 각도, 50mm 렌즈 f/3.5로 촬영,\n식욕을 돋우는 진한 색감.")}
         <p class="p3-p muted edit" contenteditable="true">빛을 <b>뒤쪽에서</b> 주세요. 정면광은 음식을 납작해 보이게 만듭니다.</p>
       </div>
       <div class="p3-col">
@@ -1463,7 +1520,7 @@ const SLIDES = [
           <div class="trow"><div class="k" style="font-family:'Noto Sans KR',sans-serif;font-size:12.5px">평면 촬영</div><div class="v">flat lay, neatly arranged, top-down</div></div>
           <div class="trow"><div class="k" style="font-family:'Noto Sans KR',sans-serif;font-size:12.5px">행거</div><div class="v">hanging on a wooden hanger</div></div>
         </div>
-        ${prompt_block("... showing the drape and weight of the\nsoft cotton fabric, with natural folds\nat the sleeves. True-to-life fabric\ncolor, visible weave texture.",true)}
+        ${prompt_block("... showing the drape and weight of the\nsoft cotton fabric, with natural folds\nat the sleeves. True-to-life fabric\ncolor, visible weave texture.",true,"... 부드러운 면 원단의 드레이핑과 무게감이\n드러나고, 소매에 자연스러운 주름. 실물과\n같은 원단 색, 짜임 질감이 눈에 보이도록.")}
         <div class="p3-note edit" contenteditable="true">옷 색은 어긋나기 쉽습니다. <b>true-to-life color</b>를 넣고, 그래도 다르면 <b>muted sage green</b>처럼 색 이름을 직접 쓰세요.</div>
       </div>
     </div>
@@ -1519,10 +1576,10 @@ const SLIDES = [
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">마스크 없이 말로</div>
         <p class="p3-p edit" contenteditable="true">예전에는 고칠 영역을 브러시로 칠해 줘야 했습니다. 지금은 <b>어디를 어떻게</b>만 말하면 됩니다. 다만 나머지를 건드리지 말라는 말은 반드시 붙이세요.</p>
-        ${prompt_block("In the attached photo, change the color\nof the sofa from grey to deep olive\ngreen. Keep the fabric texture, the\ncushions' shape, the lighting, and every\nother element in the room exactly the\nsame.")}
+        ${prompt_block("In the attached photo, change the color\nof the sofa from grey to deep olive\ngreen. Keep the fabric texture, the\ncushions' shape, the lighting, and every\nother element in the room exactly the\nsame.",false,"첨부한 사진에서 소파 색만 회색에서\n딥 올리브 그린으로 바꿔 줘. 원단의\n질감, 쿠션의 형태, 조명, 그리고 방 안의\n다른 모든 요소는 완전히 그대로 유지해 줘.")}
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:12px">위치를 짚어 주기</div>
         <p class="p3-p edit" contenteditable="true">비슷한 물건이 여럿이면 <b>어느 것인지</b> 알려 줘야 합니다.</p>
-        ${prompt_block("Change only the mug on the left side of\nthe table, closest to the window.\nLeave the other two mugs unchanged.",true)}
+        ${prompt_block("Change only the mug on the left side of\nthe table, closest to the window.\nLeave the other two mugs unchanged.",true,"테이블 왼쪽, 창가에서 가장 가까운\n머그컵만 바꿔 줘. 나머지 두 개의\n머그컵은 그대로 둬.")}
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">자주 쓰는 국소 편집</div>
@@ -1546,7 +1603,7 @@ const SLIDES = [
     <div class="p3-cols">
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">인물은 그대로, 배경만</div>
-        ${prompt_block("Replace the background of the attached\nphoto with a bright modern office\ninterior, softly out of focus.\nKeep the person, her pose, her clothing,\nand her facial features exactly as they\nare. Match the new background's lighting\ndirection to the light already on her\nface, and adjust the edge blending so it\nlooks naturally photographed.")}
+        ${prompt_block("Replace the background of the attached\nphoto with a bright modern office\ninterior, softly out of focus.\nKeep the person, her pose, her clothing,\nand her facial features exactly as they\nare. Match the new background's lighting\ndirection to the light already on her\nface, and adjust the edge blending so it\nlooks naturally photographed.",false,"첨부한 사진의 배경을 초점이 부드럽게 나간\n밝은 모던 오피스 인테리어로 교체해 줘.\n인물, 자세, 옷, 이목구비는 완전히 지금\n그대로 유지. 새 배경의 조명 방향을 이미\n인물 얼굴에 떨어져 있는 빛과 맞추고,\n경계의 블렌딩을 조정해서 실제로 촬영한\n것처럼 자연스럽게 보이게 해 줘.")}
         <p class="p3-p muted edit" contenteditable="true">마지막 두 문장이 결과를 가릅니다. 빛의 방향을 맞추라는 지시가 없으면 합성 티가 확 납니다.</p>
       </div>
       <div class="p3-col">
@@ -1558,7 +1615,7 @@ const SLIDES = [
           <li class="edit" contenteditable="true"><b>시선 높이</b> — 배경의 지평선과 인물의 눈높이가 맞아야 합니다</li>
         </ul>
         <div class="p3-note edit" contenteditable="true">네 가지가 다 맞기 어렵다면 <b>배경을 크게 흐리세요.</b> 흐린 배경은 어긋남이 덜 보입니다. 실무에서 가장 안전한 선택입니다.</div>
-        ${prompt_block("... background heavily blurred,\nshallow depth of field, only shapes and\ncolor visible.",true)}
+        ${prompt_block("... background heavily blurred,\nshallow depth of field, only shapes and\ncolor visible.",true,"... 배경을 크게 흐리고, 얕은 심도,\n형태와 색만 알아볼 수 있을 정도로.")}
       </div>
     </div>
     ${F.replace('{PART}','Part 3.  나노 바나나 프롬프트 사전')}
@@ -1571,7 +1628,7 @@ const SLIDES = [
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">두세 장까지가 안정적</div>
         <p class="p3-p edit" contenteditable="true">사진 여러 장을 올려 하나로 묶을 수 있습니다. <b>각 이미지에서 무엇을 가져올지</b> 번호로 지정하는 것이 요령입니다.</p>
-        ${prompt_block("I'm attaching three images.\nImage 1: a person.\nImage 2: a jacket.\nImage 3: a city street at night.\n\nCreate a single photograph of the person\nfrom Image 1 wearing the jacket from\nImage 2, standing on the street from\nImage 3. Keep her face from Image 1\nexactly. Keep the jacket's color, cut,\nand buttons from Image 2. Match all\nlighting to the night street scene.")}
+        ${prompt_block("I'm attaching three images.\nImage 1: a person.\nImage 2: a jacket.\nImage 3: a city street at night.\n\nCreate a single photograph of the person\nfrom Image 1 wearing the jacket from\nImage 2, standing on the street from\nImage 3. Keep her face from Image 1\nexactly. Keep the jacket's color, cut,\nand buttons from Image 2. Match all\nlighting to the night street scene.",false,"이미지 세 장을 첨부했어.\n이미지 1: 인물.\n이미지 2: 재킷.\n이미지 3: 밤 도심 거리.\n\n이미지 1의 인물이 이미지 2의 재킷을\n입고, 이미지 3의 거리에 서 있는 사진 한\n장을 만들어 줘. 이미지 1의 얼굴은\n그대로 정확히 유지. 이미지 2의 재킷은\n색, 컷, 단추까지 그대로 유지. 조명은\n전부 밤 거리 장면에 맞춰 줘.")}
         <p class="p3-p muted edit" contenteditable="true">넉 장을 넘어가면 결과가 급격히 흐트러집니다. 많이 합쳐야 하면 두 장씩 나눠서 단계적으로 쌓으세요.</p>
       </div>
       <div class="p3-col">
@@ -1601,9 +1658,9 @@ const SLIDES = [
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">되돌리고 싶을 때</div>
-        ${prompt_block("Go back to the version before the last\nchange. Keep the brighter background but\nundo the warm tone.")}
+        ${prompt_block("Go back to the version before the last\nchange. Keep the brighter background but\nundo the warm tone.",false,"마지막 변경 전 버전으로 돌아가 줘.\n밝아진 배경은 유지하되, 따뜻한 톤은\n되돌려 줘.")}
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:12px">여러 안을 한꺼번에</div>
-        ${prompt_block("Give me three variations of this image:\none with warm golden tones, one with\ncool blue tones, and one neutral.\nKeep the composition and subject\nidentical in all three.")}
+        ${prompt_block("Give me three variations of this image:\none with warm golden tones, one with\ncool blue tones, and one neutral.\nKeep the composition and subject\nidentical in all three.",false,"이 이미지의 세 가지 변형을 만들어 줘:\n따뜻한 골든 톤 하나, 차가운 블루 톤\n하나, 그리고 중립 톤 하나. 세 장 모두\n구도와 피사체는 동일하게 유지.")}
         <div class="p3-note edit" contenteditable="true">고르기 위한 작업이라면 처음부터 <b>세 가지 안을 함께</b> 요청하세요. 하나씩 만들어 비교하는 것보다 빠르고, 셋의 조건이 같아서 비교가 정확합니다.</div>
       </div>
     </div>
@@ -1628,7 +1685,7 @@ const SLIDES = [
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">통째로 쓰는 편집 틀</div>
-        ${prompt_block("In the attached image, change only\n[바꿀 것] to [원하는 상태].\n\nKeep [지킬 것 1], [지킬 것 2], and all\nother elements exactly the same.\nMatch the existing lighting direction,\ncolor temperature, and perspective so\nthe result looks naturally photographed.")}
+        ${prompt_block("In the attached image, change only\n[바꿀 것] to [원하는 상태].\n\nKeep [지킬 것 1], [지킬 것 2], and all\nother elements exactly the same.\nMatch the existing lighting direction,\ncolor temperature, and perspective so\nthe result looks naturally photographed.",false,"첨부한 이미지에서 [바꿀 것]만\n[원하는 상태]로 바꿔 줘.\n\n[지킬 것 1], [지킬 것 2], 그리고 다른\n모든 요소는 완전히 그대로 유지.\n기존의 조명 방향, 색 온도, 원근감에\n맞춰서 결과가 실제로 촬영한 것처럼\n자연스럽게 보이게 해 줘.")}
         <p class="p3-p muted edit" contenteditable="true">이 틀 하나로 5장의 대부분을 해결할 수 있습니다. 대괄호만 갈아 끼우세요.</p>
       </div>
     </div>
@@ -1665,7 +1722,7 @@ const SLIDES = [
           <div class="trow"><div class="k" style="font-family:'Noto Sans KR',sans-serif;font-size:12.5px">기법</div><div class="v edit" contenteditable="true">선 굵기, 채색 방식, 질감, 명암 처리</div></div>
           <div class="trow"><div class="k" style="font-family:'Noto Sans KR',sans-serif;font-size:12.5px">참조 시대·장르</div><div class="v edit" contenteditable="true">1970년대 포스터, 북유럽 그림책 등</div></div>
         </div>
-        ${prompt_block("Flat vector illustration of a coffee\nshop interior. Bold uniform outlines,\nlimited palette of four muted colors,\nno gradients, geometric simplified\nshapes. Scandinavian children's book\naesthetic, warm and friendly.",true)}
+        ${prompt_block("Flat vector illustration of a coffee\nshop interior. Bold uniform outlines,\nlimited palette of four muted colors,\nno gradients, geometric simplified\nshapes. Scandinavian children's book\naesthetic, warm and friendly.",true,"카페 인테리어의 플랫 벡터 일러스트.\n굵고 균일한 외곽선, 절제된 네 가지\n색만 사용, 그라데이션 없음, 기하학적으로\n단순화된 형태. 북유럽 그림책 감성,\n따뜻하고 친근하게.")}
         <div class="p3-note edit" contenteditable="true">작가 이름을 넣는 것은 피하세요. 저작권 문제가 되고 모델도 대체로 거부합니다. <b>기법으로 설명하면</b> 같은 결과를 안전하게 얻습니다.</div>
       </div>
     </div>
@@ -1693,7 +1750,7 @@ const SLIDES = [
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">아이소메트릭 예시</div>
-        ${prompt_block("Isometric 3D illustration of a small\nKorean street food stall, viewed from a\n45 degree angle as a tiny diorama on a\nplain background. Soft clay-like matte\nmaterials, warm ambient lighting with\ngentle shadows, pastel color palette,\nclean and toy-like. Square composition\nwith even margins.")}
+        ${prompt_block("Isometric 3D illustration of a small\nKorean street food stall, viewed from a\n45 degree angle as a tiny diorama on a\nplain background. Soft clay-like matte\nmaterials, warm ambient lighting with\ngentle shadows, pastel color palette,\nclean and toy-like. Square composition\nwith even margins.",false,"작은 한국식 포장마차의 아이소메트릭 3D\n일러스트. 45도 각도에서 무지 배경 위\n작은 디오라마처럼 내려다봄. 부드러운\n클레이 같은 무광 재질, 은은한 그림자가\n있는 따뜻한 앰비언트 조명, 파스텔 색\n팔레트, 깔끔하고 장난감 같은 느낌.\n여백이 고른 정사각형 구도.")}
         <div class="p3-note edit" contenteditable="true">아이소메트릭은 <b>tiny diorama</b>라는 말이 결정적입니다. 이 표현이 없으면 평범한 원근 그림이 나옵니다.</div>
         <p class="p3-p muted edit" contenteditable="true" style="margin-top:8px">9장 사전에 화풍 표현이 더 정리돼 있습니다.</p>
       </div>
@@ -1720,7 +1777,7 @@ const SLIDES = [
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">과하지 않게</div>
         <p class="p3-p edit" contenteditable="true">질감 표현을 여러 개 겹치면 결과가 지저분해집니다. <b>하나만 골라 쓰세요.</b></p>
-        ${prompt_block("// 너무 많이 넣은 경우\nfilm grain, vintage, retro, faded,\nanalog, nostalgic, dreamy, soft\n\n// 하나로 충분하다\nshot on 35mm film with visible grain\nand slightly lifted blacks",true)}
+        ${prompt_block("// 너무 많이 넣은 경우\nfilm grain, vintage, retro, faded,\nanalog, nostalgic, dreamy, soft\n\n// 하나로 충분하다\nshot on 35mm film with visible grain\nand slightly lifted blacks",true,"// 너무 많이 넣은 경우\n필름 입자, 빈티지, 레트로, 바랜 느낌,\n아날로그, 노스탤직, 몽환적, 부드러움\n\n// 하나로 충분하다\n35mm 필름으로 촬영, 입자감이 눈에 보이고\n블랙이 살짝 뜬 톤")}
         <div class="p3-note edit" contenteditable="true">비슷한 뜻의 단어를 여러 개 넣는다고 효과가 세지지 않습니다. 오히려 모델이 무엇을 우선할지 헷갈려 합니다. <b>한 문장으로 정확히</b>가 낫습니다.</div>
       </div>
     </div>
@@ -1747,7 +1804,7 @@ const SLIDES = [
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">한옥 장면 예시</div>
-        ${prompt_block("Photograph of a traditional Korean hanok\ncourtyard in early autumn. Wooden pillars\nand paper-screen doors line the raised\nfloor, with curved grey roof tiles above.\nA persimmon tree stands in the stone-\npaved yard. Late afternoon sunlight rakes\nacross the wooden floor, casting long\nshadows through the lattice doors.\nShot on a 35mm lens at f/4, warm natural\ntones, calm and quiet mood.")}
+        ${prompt_block("Photograph of a traditional Korean hanok\ncourtyard in early autumn. Wooden pillars\nand paper-screen doors line the raised\nfloor, with curved grey roof tiles above.\nA persimmon tree stands in the stone-\npaved yard. Late afternoon sunlight rakes\nacross the wooden floor, casting long\nshadows through the lattice doors.\nShot on a 35mm lens at f/4, warm natural\ntones, calm and quiet mood.",false,"초가을 전통 한옥 마당의 사진. 나무\n기둥들과 창호지 문들이 마루 위에 늘어서\n있고, 위쪽으로는 곡선의 회색 기와가\n얹혀 있음. 돌을 깐 마당에 감나무 한\n그루가 서 있음. 오후 늦은 햇살이 마루를\n비스듬히 훑으며, 살문 창살 사이로 긴\n그림자를 드리움. 35mm 렌즈 f/4로 촬영,\n따뜻한 자연 톤, 고요하고 차분한 분위기.")}
         <div class="p3-note edit" contenteditable="true">구조물을 <b>구체적으로 묘사</b>한 것이 핵심입니다. 나무 기둥, 창호지 문, 기와, 마당의 돌바닥 — 이렇게 적으면 한옥이 제대로 나옵니다.</div>
       </div>
     </div>
@@ -1814,7 +1871,7 @@ const SLIDES = [
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">영문 텍스트 넣기</div>
-        ${prompt_block('Poster design with the word "SUMMER"\nin large bold sans-serif letters across\nthe center. The text is white with a\nsubtle drop shadow, set against a photo\nof a sunlit beach. Clean layout with\ngenerous margins. Make sure the spelling\nis exactly "SUMMER".')}
+        ${prompt_block('Poster design with the word "SUMMER"\nin large bold sans-serif letters across\nthe center. The text is white with a\nsubtle drop shadow, set against a photo\nof a sunlit beach. Clean layout with\ngenerous margins. Make sure the spelling\nis exactly "SUMMER".',false,'"SUMMER"라는 단어를 크고 굵은 산세리프\n서체로 화면 중앙에 가로로 배치한 포스터\n디자인. 텍스트는 흰색에 은은한 그림자,\n햇살이 비치는 해변 사진 위에 얹음.\n넉넉한 여백을 둔 깔끔한 레이아웃. 철자는\n정확히 "SUMMER"로 나오도록 해 줘.')}
         <p class="p3-p muted edit" contenteditable="true">마지막 문장을 붙이는 습관을 들이세요. 철자를 다시 확인하라는 지시가 오타를 눈에 띄게 줄입니다.</p>
         <div class="p3-note edit" contenteditable="true">글자가 많이 들어가야 한다면 이미지 모델로 해결하려 들지 마세요. <b>배경만 만들고 글자는 따로 얹는 편</b>이 언제나 빠르고 정확합니다.</div>
       </div>
@@ -1852,7 +1909,7 @@ const SLIDES = [
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">가장 확실한 방법</div>
         <p class="p3-p edit" contenteditable="true">배경만 모델로 만들고, 글자는 디자인 도구에서 얹는 방식입니다. 이미지에 <b>글자 자리를 미리 비워 두라고</b> 지시하는 것이 요령입니다.</p>
-        ${prompt_block("Create a background image for a Korean\nYouTube thumbnail: a bright kitchen\ncounter with fresh ingredients arranged\non the left side.\n\nLeave the entire right half of the frame\nvisually simple and low in contrast, with\nno objects or text, so that Korean text\ncan be placed there afterward.\n16:9 composition.")}
+        ${prompt_block("Create a background image for a Korean\nYouTube thumbnail: a bright kitchen\ncounter with fresh ingredients arranged\non the left side.\n\nLeave the entire right half of the frame\nvisually simple and low in contrast, with\nno objects or text, so that Korean text\ncan be placed there afterward.\n16:9 composition.",false,"한국 유튜브 썸네일용 배경 이미지를\n만들어 줘: 밝은 주방 조리대, 왼쪽\n부분에 신선한 재료들이 배치되어 있음.\n\n프레임의 오른쪽 절반 전체는 시각적으로\n단순하고 대비를 낮게 유지, 사물이나\n글자는 두지 말고, 나중에 그 자리에\n한글 텍스트를 얹을 수 있게 해 줘.\n16:9 구도.")}
       </div>
       <div class="p3-col">
         <div class="p3-note edit" contenteditable="true">이 방식이 <b>실무 표준</b>입니다. 배경은 모델로, 글자는 캔바·미리캔버스·피그마로. 한글 서체도 마음대로 고를 수 있어 결과가 훨씬 낫습니다.</div>
@@ -1873,12 +1930,12 @@ const SLIDES = [
     <div class="p3-cols">
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">유튜브 썸네일 배경</div>
-        ${prompt_block("YouTube thumbnail background, 16:9.\nA Korean man in his thirties on the left\nthird of the frame, facing the camera\nwith a surprised expression, pointing to\nhis right. Bright studio lighting, high\ncontrast, saturated colors.\n\nThe right two-thirds is a clean gradient\nbackground with no detail, reserved for\ntext. Strong subject separation from the\nbackground.")}
+        ${prompt_block("YouTube thumbnail background, 16:9.\nA Korean man in his thirties on the left\nthird of the frame, facing the camera\nwith a surprised expression, pointing to\nhis right. Bright studio lighting, high\ncontrast, saturated colors.\n\nThe right two-thirds is a clean gradient\nbackground with no detail, reserved for\ntext. Strong subject separation from the\nbackground.",false,"유튜브 썸네일 배경, 16:9. 프레임 왼쪽\n3분의 1 자리에 30대 한국인 남성이\n놀란 표정으로 카메라를 정면 응시하며\n오른쪽을 가리키고 있음. 밝은 스튜디오\n조명, 강한 대비, 채도 높은 색.\n\n오른쪽 3분의 2는 디테일 없이 깔끔한\n그라데이션 배경, 글자 자리로 비워 둠.\n인물과 배경의 분리감을 강하게.")}
         <p class="p3-p muted edit" contenteditable="true">썸네일은 <b>대비와 채도</b>가 전부입니다. 작게 줄어들어도 알아볼 수 있어야 합니다.</p>
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">상세페이지 배너</div>
-        ${prompt_block("Wide banner image, 3:1 ratio.\nA minimal composition with a single\nskincare bottle placed on the right side\nagainst a soft gradient of cream and\npale pink. Soft even lighting, gentle\nshadow. The left half stays empty and\nuncluttered for text placement.")}
+        ${prompt_block("Wide banner image, 3:1 ratio.\nA minimal composition with a single\nskincare bottle placed on the right side\nagainst a soft gradient of cream and\npale pink. Soft even lighting, gentle\nshadow. The left half stays empty and\nuncluttered for text placement.",false,"와이드 배너 이미지, 3:1 비율.\n크림색과 옅은 핑크의 부드러운\n그라데이션 배경 위에, 스킨케어 병 하나가\n오른쪽에 놓인 미니멀 구도. 부드럽고\n균일한 조명, 은은한 그림자. 왼쪽 절반은\n글자를 얹을 자리로 비우고 어지럽지 않게\n유지.")}
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:10px">규격 정리</div>
         <div class="p3-table">
           <div class="trow"><div class="k" style="font-family:'Noto Sans KR',sans-serif;font-size:12.5px">유튜브 썸네일</div><div class="v">16:9</div></div>
@@ -1952,7 +2009,7 @@ const SLIDES = [
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">쪼개서 쌓기</div>
-        ${prompt_block("// 1단계 - 기본 장면만\nA Korean woman standing in a modern\nkitchen, natural window light.\n\n// 2단계 - 편집으로 추가\nAdd a ceramic mug in her right hand.\nKeep everything else the same.\n\n// 3단계 - 편집으로 추가\nChange her outfit to a beige apron.\nKeep her face and pose unchanged.\n\n// 4단계 - 마무리 보정\nWarm up the overall color slightly.")}
+        ${prompt_block("// 1단계 - 기본 장면만\nA Korean woman standing in a modern\nkitchen, natural window light.\n\n// 2단계 - 편집으로 추가\nAdd a ceramic mug in her right hand.\nKeep everything else the same.\n\n// 3단계 - 편집으로 추가\nChange her outfit to a beige apron.\nKeep her face and pose unchanged.\n\n// 4단계 - 마무리 보정\nWarm up the overall color slightly.",false,"// 1단계 - 기본 장면만\n한국인 여성이 모던한 주방에 서 있음,\n자연스러운 창가 빛.\n\n// 2단계 - 편집으로 추가\n오른손에 세라믹 머그를 하나 넣어 줘.\n나머지는 전부 그대로.\n\n// 3단계 - 편집으로 추가\n의상을 베이지색 앞치마로 바꿔 줘.\n얼굴과 자세는 그대로 유지.\n\n// 4단계 - 마무리 보정\n전체 색감을 살짝만 따뜻하게.")}
         <p class="p3-p muted edit" contenteditable="true">네 번의 요청이 한 번의 긴 프롬프트보다 빠릅니다. 어느 단계에서 어긋났는지도 바로 보입니다.</p>
       </div>
     </div>
@@ -1968,17 +2025,17 @@ const SLIDES = [
         <p class="p3-p edit" contenteditable="true">클로즈업일수록 심해집니다. 얼굴을 화면에서 작게 잡고, <b>natural skin texture</b>를 넣으세요. 그래도 이상하면 여러 장 뽑아 고르는 편이 빠릅니다.</p>
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:12px">손가락이 이상하다</div>
         <p class="p3-p edit" contenteditable="true">여전히 가장 자주 틀리는 부분입니다. 손을 <b>보이지 않게 하거나 단순한 자세</b>로 바꾸세요. 주머니에 넣기, 물건 쥐기, 팔짱 끼기가 안전합니다.</p>
-        ${prompt_block("hands in pockets / holding a cup with\nboth hands / arms crossed",true)}
+        ${prompt_block("hands in pockets / holding a cup with\nboth hands / arms crossed",true,"손을 주머니에 넣기 / 두 손으로 컵을\n감싸 쥐기 / 팔짱 끼기")}
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:12px">글자가 깨진다</div>
         <p class="p3-p edit" contenteditable="true">7장을 참고하세요. 한글이라면 이미지 안에서 해결하려 들지 않는 것이 정답입니다.</p>
       </div>
       <div class="p3-col">
         <div class="p3-sub edit" contenteditable="true">요청한 게 빠졌다</div>
         <p class="p3-p edit" contenteditable="true">요구가 많으면 모델이 일부를 흘립니다. 빠진 것만 <b>편집으로 따로 추가</b>하세요.</p>
-        ${prompt_block("Add the [빠진 것] that was missing.\nKeep everything else exactly the same.",true)}
+        ${prompt_block("Add the [빠진 것] that was missing.\nKeep everything else exactly the same.",true,"빠져 있던 [빠진 것]을 추가해 줘.\n나머지는 전부 완전히 그대로 유지.")}
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:12px">배경이 너무 산만하다</div>
         <p class="p3-p edit" contenteditable="true">배경을 흐리거나 단순하게 만들라고 지시하세요.</p>
-        ${prompt_block("background heavily blurred, shallow\ndepth of field, minimal distractions",true)}
+        ${prompt_block("background heavily blurred, shallow\ndepth of field, minimal distractions",true,"배경을 크게 흐리고, 얕은 심도,\n시선을 뺏는 요소는 최소한으로")}
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:12px">색이 원하는 대로 안 나온다</div>
         <p class="p3-p edit" contenteditable="true">"파란색"보다 <b>muted navy</b>처럼 구체적인 색 이름이 정확합니다.</p>
       </div>
@@ -2255,19 +2312,19 @@ const SLIDES = [
     <div class="p3-cols">
       <div class="p3-col">
         <div class="p3-sub plain edit" contenteditable="true">인물</div>
-        ${prompt_block("[Photograph] of a Korean [성별] in\n[나이대] wearing [의상], [동작과 표정],\nin [장소]. Lit by [조명] from the [방향].\nShot on an 85mm lens at f/2.8, [구도]\nframing, natural skin texture, [색감].",true)}
+        ${prompt_block("[Photograph] of a Korean [성별] in\n[나이대] wearing [의상], [동작과 표정],\nin [장소]. Lit by [조명] from the [방향].\nShot on an 85mm lens at f/2.8, [구도]\nframing, natural skin texture, [색감].",true,"[의상]을 입은 [나이대] 한국인 [성별]의\n[사진]. [장소]에서 [동작과 표정].\n[방향]에서 [조명]으로 조명. 85mm 렌즈\nf/2.8로 촬영, [구도] 프레이밍,\n자연스러운 피부 질감, [색감].")}
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:10px">제품</div>
-        ${prompt_block("Product photograph of [제품] on\n[배경]. [조명] with a soft shadow\nbeneath. Entire product in sharp focus,\ncentered with generous margin.\n[비율] framing, true-to-life, no props.",true)}
+        ${prompt_block("Product photograph of [제품] on\n[배경]. [조명] with a soft shadow\nbeneath. Entire product in sharp focus,\ncentered with generous margin.\n[비율] framing, true-to-life, no props.",true,"[배경] 위에 놓인 [제품]의 제품 사진.\n[조명]과 아래쪽에 부드러운 그림자.\n제품 전체가 선명한 초점, 넉넉한 여백을\n두고 중앙 배치. [비율] 프레이밍, 실물\n그대로의 색, 소품 없음.")}
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:10px">편집</div>
-        ${prompt_block("In the attached image, change only\n[대상] to [원하는 상태]. Keep [지킬 것]\nand all other elements exactly the same.\nMatch the existing lighting.",true)}
+        ${prompt_block("In the attached image, change only\n[대상] to [원하는 상태]. Keep [지킬 것]\nand all other elements exactly the same.\nMatch the existing lighting.",true,"첨부한 이미지에서 [대상]만 [원하는\n상태]로 바꿔 줘. [지킬 것]과 다른 모든\n요소는 완전히 그대로 유지. 기존 조명에\n맞춰 줘.")}
       </div>
       <div class="p3-col">
         <div class="p3-sub plain edit" contenteditable="true">일관성</div>
-        ${prompt_block("Using the person in the attached image,\ncreate a new photograph of [새 장면].\nKeep her face, hairstyle, and skin tone\nexactly as in the reference. Change only\nthe pose, outfit, and setting.",true)}
+        ${prompt_block("Using the person in the attached image,\ncreate a new photograph of [새 장면].\nKeep her face, hairstyle, and skin tone\nexactly as in the reference. Change only\nthe pose, outfit, and setting.",true,"첨부한 이미지의 인물을 써서 [새 장면]의\n새 사진을 만들어 줘. 얼굴, 헤어스타일,\n피부톤은 레퍼런스와 완전히 동일하게\n유지. 자세, 의상, 배경만 바꿔 줘.")}
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:10px">일러스트</div>
-        ${prompt_block("[매체] illustration of [대상].\n[선과 채색 기법], limited palette of\n[N] colors, [분위기]. [비율] composition.",true)}
+        ${prompt_block("[매체] illustration of [대상].\n[선과 채색 기법], limited palette of\n[N] colors, [분위기]. [비율] composition.",true,"[대상]의 [매체] 일러스트.\n[선과 채색 기법], [N]개 색으로 제한된\n팔레트, [분위기]. [비율] 구도.")}
         <div class="p3-sub plain edit" contenteditable="true" style="margin-top:10px">텍스트 여백</div>
-        ${prompt_block("... Leave the [위치] of the frame visually\nsimple and low in contrast, with no\nobjects, so text can be placed there\nafterward. [비율] composition.",true)}
+        ${prompt_block("... Leave the [위치] of the frame visually\nsimple and low in contrast, with no\nobjects, so text can be placed there\nafterward. [비율] composition.",true,"... 프레임의 [위치]는 시각적으로\n단순하고 대비를 낮게, 사물 없이 비워\n둬서 나중에 그 자리에 글자를 얹을 수\n있게 해 줘. [비율] 구도.")}
         <div class="p3-note edit" contenteditable="true">여섯 개를 메모장에 붙여 두고 대괄호만 갈아 끼우세요.</div>
       </div>
     </div>
@@ -2302,6 +2359,10 @@ function caseSlide(o){
   const beforeBlock = beforeEn
     ? `<p class="prompt-user edit has-copy" contenteditable="true"><span class="lang lang-ko">${o.before}</span><span class="lang lang-en">${beforeEn}</span></p>`
     : `<p class="prompt-user edit has-copy" contenteditable="true">${o.before}</p>`;
+  const afterKo = o.afterKo || '';
+  const afterBlock = afterKo
+    ? `<p class="prompt-ai edit has-copy has-ko" data-plang="en" contenteditable="true"><span class="plang-en">${o.after}</span><span class="plang-ko">${afterKo}</span></p>`
+    : `<p class="prompt-ai edit has-copy" contenteditable="true">${o.after}</p>`;
   return `<div class="slide"><div class="slide-inner">
     <div class="case-layout">
       <img class="case-main-img" src="${IMG}${o.main}" alt="${o.title}">
@@ -2312,7 +2373,7 @@ function caseSlide(o){
         ${refs}
         ${beforeBlock}
         <h4 class="edit" contenteditable="true" style="color:var(--slide-link)">변환된 프롬프트(After):</h4>
-        <p class="prompt-ai edit has-copy" contenteditable="true">${o.after}</p>
+        ${afterBlock}
       </div>
     </div>
     ${F.replace('{PART}','Part 2.  따라하기')}
@@ -2321,7 +2382,7 @@ function caseSlide(o){
 
 /* ==================== Rendering & state ==================== */
 const PART_META = {1:{num:'Part 1',label:'이해하기'},2:{num:'Part 2',label:'따라하기'},3:{num:'Part 3',label:'나노 바나나 프롬프트 사전'}};
-const STORAGE_KEY = 'ai-image-book-edits-v5';
+const STORAGE_KEY = 'ai-image-book-edits-v6';
 
 function loadEdits(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')}catch(e){return{}}}
 function saveEdits(edits){localStorage.setItem(STORAGE_KEY,JSON.stringify(edits))}
@@ -2476,28 +2537,53 @@ document.getElementById('reset-btn').addEventListener('click',()=>{
 /* ---------- Copy button injection ---------- */
 function injectCopyButtons(){
   document.querySelectorAll('#content .has-copy').forEach(el=>{
-    if(el.querySelector(':scope > .copy-btn-inline')) return;
-    const btn=document.createElement('button');
-    btn.className='copy-btn-inline';
-    btn.type='button';
-    btn.textContent='복사';
-    btn.setAttribute('contenteditable','false');
-    btn.addEventListener('mousedown',e=>e.preventDefault());
-    btn.addEventListener('click',(e)=>{
-      e.stopPropagation();
-      const clone=el.cloneNode(true);
-      clone.querySelectorAll('.copy-btn-inline').forEach(b=>b.remove());
-      const text=(clone.innerText||clone.textContent||'').trim();
-      navigator.clipboard.writeText(text).then(()=>{
-        btn.classList.add('ok');
-        btn.textContent='복사됨!';
-        setTimeout(()=>{btn.textContent='복사';btn.classList.remove('ok');},1400);
-      }).catch(()=>{
-        btn.textContent='실패';
-        setTimeout(()=>{btn.textContent='복사';},1400);
+    if(!el.querySelector(':scope > .copy-btn-inline')){
+      const btn=document.createElement('button');
+      btn.className='copy-btn-inline';
+      btn.type='button';
+      btn.textContent='복사';
+      btn.setAttribute('contenteditable','false');
+      btn.addEventListener('mousedown',e=>e.preventDefault());
+      btn.addEventListener('click',(e)=>{
+        e.stopPropagation();
+        let text;
+        if(el.classList.contains('has-ko')){
+          const lang = el.dataset.plang || 'en';
+          const span = el.querySelector(':scope > .plang-'+lang);
+          text = span ? (span.innerText||span.textContent||'').trim() : '';
+        } else {
+          const clone=el.cloneNode(true);
+          clone.querySelectorAll('.copy-btn-inline,.ko-btn-inline').forEach(b=>b.remove());
+          text=(clone.innerText||clone.textContent||'').trim();
+        }
+        navigator.clipboard.writeText(text).then(()=>{
+          btn.classList.add('ok');
+          btn.textContent='복사됨!';
+          setTimeout(()=>{btn.textContent='복사';btn.classList.remove('ok');},1400);
+        }).catch(()=>{
+          btn.textContent='실패';
+          setTimeout(()=>{btn.textContent='복사';},1400);
+        });
       });
-    });
-    el.appendChild(btn);
+      el.appendChild(btn);
+    }
+    if(el.classList.contains('has-ko') && !el.querySelector(':scope > .ko-btn-inline')){
+      const koBtn=document.createElement('button');
+      koBtn.className='ko-btn-inline';
+      koBtn.type='button';
+      koBtn.textContent='한글';
+      koBtn.setAttribute('contenteditable','false');
+      koBtn.addEventListener('mousedown',e=>e.preventDefault());
+      koBtn.addEventListener('click',(e)=>{
+        e.stopPropagation();
+        const cur = el.dataset.plang || 'en';
+        const next = cur==='en' ? 'ko' : 'en';
+        el.dataset.plang = next;
+        koBtn.textContent = next==='ko' ? '영문' : '한글';
+        koBtn.classList.toggle('active', next==='ko');
+      });
+      el.appendChild(koBtn);
+    }
   });
 }
 
