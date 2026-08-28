@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>AI 이미지 · 강의자료</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -371,6 +374,13 @@
   .modal button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
   .modal .err{color:#e57373;font-size:12px;margin-top:8px;min-height:16px}
 
+  /* Bilingual span switching (Part 2 Before) */
+  .lang{display:none}
+  body[data-lang="ko"] .lang-ko{display:inline}
+  body[data-lang="en"] .lang-en{display:inline}
+  body:not([data-lang="en"]) .lang-ko{display:inline}
+  body[data-lang="en"] .lang-ko{display:none}
+
   /* Inline copy button (post-render injected) */
   .has-copy{position:relative}
   .copy-btn-inline{
@@ -428,7 +438,9 @@
   <nav class="nav" id="nav"></nav>
   <div class="side-foot">
     <button id="theme-btn" class="icon-btn" title="테마 전환"><span class="ico" id="theme-ico">◐</span><span id="theme-lbl">라이트</span></button>
+    <button id="lang-btn" class="icon-btn" title="언어 전환 (Part 2 Before)"><span class="ico">A</span><span id="lang-lbl">EN</span></button>
     <button id="edit-btn" class="icon-btn" title="편집 모드"><span class="ico" id="edit-ico">🔒</span><span id="edit-lbl">편집</span></button>
+    <button id="reset-btn" class="icon-btn" title="로컬 편집 초기화" style="padding:7px 10px"><span class="ico">↺</span></button>
   </div>
 </aside>
 
@@ -784,6 +796,7 @@ const SLIDES = [
   main:'img-020-086.png',refs:['img-020-082.png','img-020-084.png'],
   title:'Case 1. 제품 연출컷',model:'나노바나나 프로',
   before:"첫번째 이미지를 생성하기 위한 프롬프트를 작성하고, '브랜드 세럼' 제품의 연출컷 이미지 1:1로 만들어줘. 나노바나나프로를 사용해줘.",
+  beforeEn:"Write the prompt used to generate the first image, and produce a 1:1 lifestyle shot of the 'Brand Serum' product. Use Nano Banana Pro.",
   after:"High-end professional product photography. Replace the bottle in @Image1 with the 'BRAND SERUM' bottle from @Image2. The 'BRAND SERUM' bottle, featuring its distinctive white label with navy blue text and silver collar, should be tilted diagonally at the same angle as in @Image1. Maintain the elegant, viscous serum stream dripping from the white dropper. The background should be a clean, sophisticated light gray gradient with soft studio lighting, preserving the overall composition and premium aesthetic of @Image1."
 })},
 
@@ -791,6 +804,7 @@ const SLIDES = [
   main:'img-021-092.png',refs:['img-021-088.png','img-021-090.png'],
   title:'Case 2. 제품 FOOH',model:'나노바나나 프로',
   before:"첫번째 이미지와 같은 FOOH 신발 광고를 만들 거야. '브랜드 운동화'의 제품을 활용해서 새로운 이미지를 1:1로 만들어줘. 나노바나나 프로를 사용해줘.",
+  beforeEn:"I want to make a FOOH sneaker ad like the first image. Using the 'Brand Sneakers' product, create a new 1:1 image. Use Nano Banana Pro.",
   after:"A surreal FOOH (Fake Out of Home) advertisement image featuring a massive 'Brand' sneaker hanging from the Namsan Tower (N Seoul Tower) in Seoul. The sneaker design follows @Image2: a premium white leather base with vibrant, organic electric blue curves on the sides. The composition follows @Image1: the giant shoe is suspended from the tower's observation deck by its thick white laces, looming over the hazy Seoul city skyline. Instead of 'WORLD RECORD', the brand name 'BRAND' is clearly visible on the shoe's side and tongue. High-detail cinematic lighting, clear day sky background, 1:1 aspect ratio."
 })},
 
@@ -798,6 +812,7 @@ const SLIDES = [
   main:'img-022-096.png',refs:['img-022-094.png'],
   title:'Case 3. 모델컷 - 뷰티',model:'씨드림',
   before:"이 한국인 뷰티화보 이미지를 생성하기 위한 프롬프트를 재구성하고, T2I로 상업용 뷰티화보 시안 1:1로 만들어줘. 씨드림을 사용해줘.",
+  beforeEn:"Reconstruct the prompt used to generate this Korean beauty editorial image, then use T2I to make a 1:1 commercial beauty editorial concept. Use Seedream.",
   after:"High-end skincare brand campaign. A stunning Korean model with unique facial features, emphasizing luminous porcelain skin. She holds a small white square skincare product near her face. Her expression is serene and confident. Background is a soft-focus garden with delicate pastel flowers and natural lighting. Pure, premium, and sophisticated aesthetic. Professional beauty editorial style. 1:1 ratio."
 })},
 
@@ -805,6 +820,7 @@ const SLIDES = [
   main:'img-023-102.png',refs:['img-023-098.png','img-023-100.png'],
   title:'Case 4. 모델컷 제품 변경 - 뷰티',model:'나노바나나 프로',
   before:"1번 이미지 모델이 흰색 사각형 물체 대신 2번 이미지의 '브랜드 세럼' 제품을 자연스럽게 들고 있도록 수정해줘. 모델, 구도, 배경은 바뀌지 않고 제품만 바뀌게 해줘. 나노바나나프로 4K를 사용해줘.",
+  beforeEn:"Modify the model in image 1 so she naturally holds the 'Brand Serum' product from image 2 instead of the white square object. Keep the model, composition, and background unchanged; swap only the product. Use Nano Banana Pro 4K.",
   after:"Modify the woman's hand to naturally grasp the side of the 'BRAND SERUM' bottle using all fingers. The hand should be wrapped around the body of the clear glass bottle in a firm yet elegant beauty product pose. Ensure the 'BRAND SERUM' bottle remains prominent and clearly visible. Keep the model's face, hair, and the blurred floral background identical to the first reference image. 4K resolution, cinematic lighting, realistic skin texture and hand anatomy."
 })},
 
@@ -812,6 +828,7 @@ const SLIDES = [
   main:'img-024-106.png',refs:['img-024-104.png'],
   title:'Case 5. 모델컷 - 패션',model:'나노바나나 프로',
   before:"이 패션화보 이미지를 생성하기 위한 프롬프트를 재구성하고, T2I로 상업용 패션화보 시안 1:1로 만들어줘. 나노바나나프로를 사용해줘.",
+  beforeEn:"Reconstruct the prompt used to generate this fashion editorial image, then use T2I to make a 1:1 commercial fashion editorial concept. Use Nano Banana Pro.",
   after:"A young woman with long, wavy blonde hair, eyes closed in a peaceful expression, and a gentle smile. She is in a crouching pose, with her legs tucked beneath her. She wears a vibrant deep green chunky knit sweater with a ribbed texture and a delicate white lace collar. Below the sweater, she has a crisp white pleated mini-skirt. She is wearing cream-colored ribbed socks that reach just below her knees and burgundy pointed-toe heels with an ankle strap. A smooth, structured brown leather handbag rests on her lap. The background is a minimalist off-white studio wall. The floor is a checkered pattern of light beige and cream tiles. Soft, even studio lighting. Fashion photography, editorial style, high detail, realistic."
 })},
 
@@ -819,6 +836,7 @@ const SLIDES = [
   main:'img-025-112.png',refs:['img-025-108.png','img-025-110.png'],
   title:'Case 6. 모델컷 제품 변경 - 패션',model:'나노바나나 프로',
   before:"1번 이미지 모델이 갈색 가방 대신 2번 이미지 '브랜드 가죽백'을 자연스럽게 들고 있게 해줘. 모델, 구도, 배경은 바뀌지 않게 해주고, 가방의 질감 디테일을 잘 살려줘. 나노바나나프로 4K를 사용해줘.",
+  beforeEn:"Have the model in image 1 naturally hold the 'Brand Leather Bag' from image 2 instead of the brown bag. Keep the model, composition, and background unchanged, and preserve the bag's texture detail. Use Nano Banana Pro 4K.",
   after:"Replace the brown bag with the blue 'BRAND' leather handbag from the reference. The model's peaceful expression, crouching pose, green sweater, and checkered floor must remain identical. Focus on rendering the \"BRAND\" brand text on the bag clearly and legibly in silver embossed letters. The texture of the blue leather should be crisp and high-quality. 4K resolution, studio fashion photography."
 })},
 
@@ -826,6 +844,7 @@ const SLIDES = [
   main:'img-026-114.png',refs:[],
   title:'Case 7. 3D 캐릭터 - 만들기',model:'Z-이미지',
   before:"유튜브에 애니메이션을 연재할 거야. 3D 클레이 스타일로 20대 한국인 남자 MZ 취준생 캐릭터를 만들어줘. Z이미지를 사용해줘.",
+  beforeEn:"I'll be serializing an animation on YouTube. Create a 3D clay style character of a Korean man in his 20s — a Gen-Z job seeker. Use Z-Image.",
   after:"A 20-year-old Korean male job seeker character in 3D clay animation style. Wearing a grey hoodie, cute and relatable expression. Clear clay textures and vibrant colors. 1:1 aspect ratio."
 })},
 
@@ -833,6 +852,7 @@ const SLIDES = [
   main:'img-027-118.png',refs:['img-027-116.png'],
   title:'Case 8. 3D 캐릭터 - 활용하기',model:'씨드림',
   before:"다양한 상황에서의 시안 이미지 4분할컷으로 만들어줘. 씨드림을 사용해줘.",
+  beforeEn:"Make a 4-panel concept image of the character in various situations. Use Seedream.",
   after:"3D clay animation style, the same Korean male character in a grey hoodie. Scene 1: Sitting in front of a laptop at a desk, looking focused but tired, with a stack of books nearby. Scene 2: Cheering with arms raised and a bright smile, celebrating a job interview call. Scene 3: Eating ramen at a small table, looking lonely but cozy. Scene 4: Walking outside with a backpack, looking hopeful. Maintain the handcrafted clay texture and character features. 1:1 aspect ratio."
 })},
 
@@ -840,6 +860,7 @@ const SLIDES = [
   main:'img-028-124.png',refs:['img-028-120.png','img-028-122.png'],
   title:'Case 9. 광고 배너',model:'나노바나나 프로',
   before:"첫번째 광고소재의 레이아웃과 문구를 참고해서, 두번째 '브랜드 세럼' 제품의 광고소재를 만들어줘. 말풍선에는 '고농축 수분 진정 세럼 30ml'이라고 작성해줘.",
+  beforeEn:"Referencing the layout and copy of the first ad creative, produce an ad creative for the second product, 'Brand Serum'. In the speech bubble, write '고농축 수분 진정 세럼 30ml'.",
   after:"A high-end, professionally designed 4K commercial web advertisement banner for 'BRAND SERUM'. Strictly follow the layout and blue color palette (#4DA6FF) of the reference image (image 1). Replace the central product with the 'BRAND SERUM' bottle (image 2). Use bold, 3D-styled typography for '첫구매 100원' with strong outlines and drop shadows for maximum visibility against the vibrant blue gradient background. CRITICAL: In the speech bubble at the bottom left, the text MUST be '브랜드 세럼' followed by '고농축 수분 진정 세럼 30ml'. Do not use any other brand names. Include the Korean text 'ONLY 자사몰 2월 이벤트!' at the top inside a white pill-shaped container. Add floating, 3D circular coin graphic elements around the product. Ensure a clean, balanced, and professional composition. 4K resolution, 1:1 aspect ratio."
 })},
 
@@ -847,6 +868,7 @@ const SLIDES = [
   main:'img-029-130.png',refs:['img-029-126.png','img-029-128.png'],
   title:'Case 10. 포스터',model:'나노바나나 프로',
   before:"첫번째 포스터를 참고해서, 두번째 브랜드 청포도 에이드의 포스터를 만들어줘. 문구와 비주얼 요소를 적절히 수정해줘.",
+  beforeEn:"Referencing the first poster, create a poster for the second product, Brand Green Grape Ade. Adjust the copy and visual elements as appropriate.",
   after:"A premium 3:4 promotional poster for 'Brand Cafe' Green Grape Ade, inspired by the reference pistachio poster. Background: Deep green solid color. Layout: The Green Grape Ade glass from the reference image is placed on the right side. On the left side, the text 'GREEN GRAPE ADE' is written in a large, bold, stylized font. On the right side, include the text 'THE BEST IS HERE AT BRAND CAFE'. Visuals: Scatter fresh green grapes and ice cubes around the glass for a dynamic and fresh feel. Style: High-contrast, sophisticated cafe poster, 2K resolution. Maintain the 'brand' logo on the glass."
 })},
 
@@ -2276,6 +2298,10 @@ const SLIDES = [
 function caseSlide(o){
   const refs = o.refs && o.refs.length ? `
     <div class="refs">${o.refs.map(r=>`<img src="${IMG}${r}" alt="reference">`).join('')}</div>` : '';
+  const beforeEn = o.beforeEn || '';
+  const beforeBlock = beforeEn
+    ? `<p class="prompt-user edit has-copy" contenteditable="true"><span class="lang lang-ko">${o.before}</span><span class="lang lang-en">${beforeEn}</span></p>`
+    : `<p class="prompt-user edit has-copy" contenteditable="true">${o.before}</p>`;
   return `<div class="slide"><div class="slide-inner">
     <div class="case-layout">
       <img class="case-main-img" src="${IMG}${o.main}" alt="${o.title}">
@@ -2284,7 +2310,7 @@ function caseSlide(o){
         <div class="kv edit" contenteditable="true"><b>사용 모델:</b> ${o.model}</div>
         <h4 class="edit" contenteditable="true">사용자 요청(Before):</h4>
         ${refs}
-        <p class="prompt-user edit has-copy" contenteditable="true">${o.before}</p>
+        ${beforeBlock}
         <h4 class="edit" contenteditable="true" style="color:var(--slide-link)">변환된 프롬프트(After):</h4>
         <p class="prompt-ai edit has-copy" contenteditable="true">${o.after}</p>
       </div>
@@ -2295,7 +2321,7 @@ function caseSlide(o){
 
 /* ==================== Rendering & state ==================== */
 const PART_META = {1:{num:'Part 1',label:'이해하기'},2:{num:'Part 2',label:'따라하기'},3:{num:'Part 3',label:'나노 바나나 프롬프트 사전'}};
-const STORAGE_KEY = 'ai-image-book-edits-v3';
+const STORAGE_KEY = 'ai-image-book-edits-v5';
 
 function loadEdits(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')}catch(e){return{}}}
 function saveEdits(edits){localStorage.setItem(STORAGE_KEY,JSON.stringify(edits))}
@@ -2425,6 +2451,28 @@ document.getElementById('theme-btn').addEventListener('click',()=>{
   applyTheme();
 });
 
+/* ---------- Language (Part 2 Before Ko/En toggle) ---------- */
+let lang = localStorage.getItem('lang') || 'ko';
+function applyLang(){
+  document.body.setAttribute('data-lang', lang);
+  const lbl=document.getElementById('lang-lbl');
+  if(lbl) lbl.textContent = lang==='ko'?'EN':'KR';
+  const btn=document.getElementById('lang-btn');
+  if(btn) btn.classList.toggle('active', lang==='en');
+}
+document.getElementById('lang-btn').addEventListener('click',()=>{
+  lang = lang==='ko'?'en':'ko';
+  localStorage.setItem('lang',lang);
+  applyLang();
+});
+
+/* ---------- Reset local edits ---------- */
+document.getElementById('reset-btn').addEventListener('click',()=>{
+  if(!confirm('로컬에 저장된 편집 내용을 모두 삭제하고 원본으로 되돌립니다. 계속하시겠습니까?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+});
+
 /* ---------- Copy button injection ---------- */
 function injectCopyButtons(){
   document.querySelectorAll('#content .has-copy').forEach(el=>{
@@ -2455,6 +2503,7 @@ function injectCopyButtons(){
 
 /* ---------- Init ---------- */
 applyTheme();
+applyLang();
 renderNav();
 const hashId=location.hash.slice(1);
 selectSlide(SLIDES.find(s=>s.id===hashId)?.id || SLIDES[0].id);
