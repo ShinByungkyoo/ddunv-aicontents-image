@@ -14,6 +14,8 @@
     --text-muted:hsl(215,12%,50%);
     --accent:hsl(210,95%,60%);
     --border:hsla(222,30%,25%,0.35);
+    --scroll-thumb:hsl(222,25%,22%);
+    --slide-shadow:0 20px 60px rgba(0,0,0,0.5);
 
     --slide-bg:#fff;
     --slide-text:#1a1a1a;
@@ -25,6 +27,17 @@
     --p3-green-soft:#eaf3ee;
     --p3-code-bg:#f4f5f0;
   }
+  body.light{
+    --bg:#f2f4f7;
+    --sidebar-bg:#ffffff;
+    --text:#1a1a1a;
+    --text-sub:#4a4a4a;
+    --text-muted:#8a8a8a;
+    --accent:hsl(210,85%,48%);
+    --border:rgba(0,0,0,0.08);
+    --scroll-thumb:#cfd4dc;
+    --slide-shadow:0 8px 28px rgba(20,30,50,0.08);
+  }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
   body{
@@ -34,7 +47,7 @@
   }
   ::-webkit-scrollbar{width:9px;height:9px}
   ::-webkit-scrollbar-track{background:var(--bg)}
-  ::-webkit-scrollbar-thumb{background:hsl(222,25%,22%);border-radius:5px}
+  ::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border-radius:5px}
   ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
 
   .sidebar{
@@ -88,7 +101,7 @@
     width:100%;aspect-ratio:16/9;
     background:var(--slide-bg);color:var(--slide-text);
     border-radius:14px;overflow:hidden;position:relative;
-    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    box-shadow:var(--slide-shadow);
     font-family:'Noto Sans KR',sans-serif;
   }
   .slide-inner{
@@ -102,13 +115,14 @@
   }
 
   .edit{
-    outline:none;cursor:text;
+    outline:none;
     border:1px dashed transparent;border-radius:4px;
     padding:2px 6px;margin:-2px -6px;
     transition:background 0.12s,border-color 0.12s;
   }
-  .edit:hover{background:hsla(210,95%,60%,0.06);border-color:hsla(210,95%,60%,0.3)}
-  .edit:focus{background:hsla(210,95%,60%,0.1);border:1px solid var(--accent)}
+  body.edit-mode .edit{cursor:text}
+  body.edit-mode .edit:hover{background:hsla(210,95%,60%,0.08);border-color:hsla(210,95%,60%,0.35)}
+  body.edit-mode .edit:focus{background:hsla(210,95%,60%,0.12);border:1px solid var(--accent)}
 
   .part-cover.p1{background:linear-gradient(135deg,#0a1414 0%,#1a3d2b 50%,#88a642 100%)}
   .part-cover.p2{background:linear-gradient(135deg,#0d1c1e 0%,#1a4a52 50%,#4dd0ba 100%)}
@@ -308,6 +322,77 @@
     color:#e8e8e8;position:absolute;top:80px;right:80px;line-height:1;letter-spacing:-0.04em;
   }
 
+  /* Sidebar footer controls */
+  .side-foot{
+    border-top:1px solid var(--border);padding:12px 14px;
+    display:flex;gap:8px;align-items:center;justify-content:space-between;
+  }
+  .icon-btn{
+    background:transparent;border:1px solid var(--border);
+    color:var(--text-sub);cursor:pointer;
+    padding:7px 12px;border-radius:7px;font-size:12px;
+    font-family:'Noto Sans KR',sans-serif;font-weight:500;
+    display:inline-flex;align-items:center;gap:6px;
+    transition:background 0.15s,color 0.15s,border-color 0.15s;
+  }
+  .icon-btn:hover{background:hsla(210,95%,60%,0.08);color:var(--text);border-color:var(--accent)}
+  .icon-btn.active{background:hsla(210,95%,60%,0.15);color:var(--accent);border-color:var(--accent)}
+  .icon-btn .ico{font-size:14px;line-height:1}
+
+  /* Login modal */
+  .modal-mask{
+    position:fixed;inset:0;background:rgba(0,0,0,0.55);
+    display:none;align-items:center;justify-content:center;z-index:200;
+    backdrop-filter:blur(2px);
+  }
+  .modal-mask.open{display:flex}
+  body.light .modal-mask{background:rgba(30,40,60,0.35)}
+  .modal{
+    background:var(--sidebar-bg);color:var(--text);
+    border-radius:12px;padding:28px 28px 22px;width:340px;max-width:92vw;
+    border:1px solid var(--border);
+    box-shadow:0 24px 60px rgba(0,0,0,0.35);
+  }
+  .modal h3{font-size:16px;font-weight:700;margin-bottom:6px}
+  .modal p.hint{font-size:12px;color:var(--text-muted);margin-bottom:16px}
+  .modal label{display:block;font-size:11px;color:var(--text-muted);margin:10px 0 5px;letter-spacing:0.04em}
+  .modal input{
+    width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);
+    padding:9px 12px;border-radius:6px;font-size:13px;
+    font-family:'Noto Sans KR',sans-serif;outline:none;
+  }
+  .modal input:focus{border-color:var(--accent)}
+  .modal .row{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
+  .modal button{
+    background:transparent;border:1px solid var(--border);color:var(--text-sub);
+    padding:8px 14px;border-radius:6px;font-size:12.5px;cursor:pointer;
+    font-family:'Noto Sans KR',sans-serif;font-weight:500;
+  }
+  .modal button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .modal .err{color:#e57373;font-size:12px;margin-top:8px;min-height:16px}
+
+  /* Inline copy button (post-render injected) */
+  .has-copy{position:relative}
+  .copy-btn-inline{
+    position:absolute;top:6px;right:6px;
+    background:var(--p3-green);color:#fff;border:none;
+    padding:4px 10px;border-radius:4px;font-size:10.5px;cursor:pointer;
+    font-family:'Noto Sans KR',sans-serif;font-weight:500;
+    opacity:0.85;transition:opacity 0.15s,background 0.15s;z-index:5;
+  }
+  .copy-btn-inline:hover{opacity:1;background:#1c5a42}
+  .copy-btn-inline.ok{background:#0f7a3d;opacity:1}
+  .case-body .has-copy{padding-right:60px}
+
+  /* Edit-mode indicator badge */
+  .edit-badge{
+    display:none;position:fixed;top:14px;right:20px;z-index:90;
+    background:var(--accent);color:#fff;padding:5px 12px;border-radius:99px;
+    font-size:11px;font-weight:600;letter-spacing:0.05em;
+    box-shadow:0 4px 12px rgba(0,0,0,0.2);
+  }
+  body.edit-mode .edit-badge{display:block}
+
   .menu-toggle{display:none}
   @media(max-width:900px){
     .sidebar{transform:translateX(-100%);transition:transform 0.3s}
@@ -336,12 +421,34 @@
 
 <aside class="sidebar">
   <div class="brand">
-    <span class="brand-badge">강의용 · 편집가능 · AI 이미지</span>
+    <span class="brand-badge">강의용 · AI 이미지</span>
     <div class="brand-title">AI 이미지<br>강의 자료</div>
     <div class="brand-sub">개념 · 사례 · 프롬프트 사전</div>
   </div>
   <nav class="nav" id="nav"></nav>
+  <div class="side-foot">
+    <button id="theme-btn" class="icon-btn" title="테마 전환"><span class="ico" id="theme-ico">◐</span><span id="theme-lbl">라이트</span></button>
+    <button id="edit-btn" class="icon-btn" title="편집 모드"><span class="ico" id="edit-ico">🔒</span><span id="edit-lbl">편집</span></button>
+  </div>
 </aside>
+
+<div class="edit-badge">편집 모드</div>
+
+<div class="modal-mask" id="login-mask">
+  <div class="modal">
+    <h3>편집 모드 잠금 해제</h3>
+    <p class="hint">ID와 비밀번호를 입력하세요.</p>
+    <label>ID</label>
+    <input type="text" id="login-id" autocomplete="off">
+    <label>PASSWORD</label>
+    <input type="password" id="login-pw" autocomplete="off">
+    <div class="err" id="login-err"></div>
+    <div class="row">
+      <button id="login-cancel">취소</button>
+      <button id="login-ok" class="primary">확인</button>
+    </div>
+  </div>
+</div>
 
 <main class="main"><div id="content"></div></main>
 
@@ -457,7 +564,7 @@ const SLIDES = [
       </div>
       <div class="case-body">
         <h3 class="edit" contenteditable="true">Case 1. 한국인 여성 셀카</h3>
-        <p class="edit" contenteditable="true" style="font-size:13.5px;line-height:1.75;color:var(--slide-text-sub)">젊은 한국 여성이 아이폰 전면 카메라로 찍은 고화질 1:1 POV 셀카. 휴대폰을 머리보다 높게 든 하이앵글의 미디엄 샷. 창가에서 들어오는 강렬하고 밝은 자연광이 피부 톤을 생기 있고 빛나게 만드는 높은 채도의 조명을 연출합니다. 화장기가 거의 없는 자연스럽고 청초한 스타일이 특징적입니다. 심플한 흰색 반팔 티셔츠를 착용합니다. 은은한 자연광이 보정 없는 실제 아이폰 사진처럼 선명한 색감과 세련된 분위기를 자아냅니다.</p>
+        <p class="edit has-copy" contenteditable="true" style="font-size:13.5px;line-height:1.75;color:var(--slide-text-sub)">젊은 한국 여성이 아이폰 전면 카메라로 찍은 고화질 1:1 POV 셀카. 휴대폰을 머리보다 높게 든 하이앵글의 미디엄 샷. 창가에서 들어오는 강렬하고 밝은 자연광이 피부 톤을 생기 있고 빛나게 만드는 높은 채도의 조명을 연출합니다. 화장기가 거의 없는 자연스럽고 청초한 스타일이 특징적입니다. 심플한 흰색 반팔 티셔츠를 착용합니다. 은은한 자연광이 보정 없는 실제 아이폰 사진처럼 선명한 색감과 세련된 분위기를 자아냅니다.</p>
         <p class="edit" contenteditable="true" style="font-size:11.5px;color:var(--slide-muted);margin-top:14px">* 왼쪽 위부터 시계방향으로 NanoBanana Pro, Seedream, GPT Image, Midjourney</p>
       </div>
     </div>
@@ -476,7 +583,7 @@ const SLIDES = [
       </div>
       <div class="case-body">
         <h3 class="edit" contenteditable="true">Case 2. 한국인 남성 거울 셀카</h3>
-        <p class="edit" contenteditable="true" style="font-size:13.5px;line-height:1.75;color:var(--slide-text-sub)">미니멀하고 깨끗한 배경의 방에서 찍은 잘생긴 젊은 한국 남성의 고품질 1:1 거울 셀카. 날렵한 턱선, 깊고 어두운 눈매, 앞머리가 있는 자연스럽고 약간 부스스한 검은색 헤어스타일을 하고 있습니다. 트렌디한 검은색 오버사이즈 후드티를 입고 있습니다. 배경은 단순하고 정돈된 흰색 또는 밝은 회색 벽으로, 매우 깨끗하고 현대적인 미학을 제공합니다. 편집되지 않은 실제 SNS 게시물 느낌입니다.</p>
+        <p class="edit has-copy" contenteditable="true" style="font-size:13.5px;line-height:1.75;color:var(--slide-text-sub)">미니멀하고 깨끗한 배경의 방에서 찍은 잘생긴 젊은 한국 남성의 고품질 1:1 거울 셀카. 날렵한 턱선, 깊고 어두운 눈매, 앞머리가 있는 자연스럽고 약간 부스스한 검은색 헤어스타일을 하고 있습니다. 트렌디한 검은색 오버사이즈 후드티를 입고 있습니다. 배경은 단순하고 정돈된 흰색 또는 밝은 회색 벽으로, 매우 깨끗하고 현대적인 미학을 제공합니다. 편집되지 않은 실제 SNS 게시물 느낌입니다.</p>
         <p class="edit" contenteditable="true" style="font-size:11.5px;color:var(--slide-muted);margin-top:14px">* 왼쪽 위부터 시계방향으로 NanoBanana Pro, Seedream, GPT Image, Midjourney</p>
       </div>
     </div>
@@ -495,7 +602,7 @@ const SLIDES = [
       </div>
       <div class="case-body">
         <h3 class="edit" contenteditable="true">Case 3. 백인 여성 화보</h3>
-        <p class="edit" contenteditable="true" style="font-size:13.5px;line-height:1.75;color:var(--slide-text-sub)">세련된 이목구비와 길고 어두운 웨이브 헤어를 가진 젊은 여성의 하이패션 에디토리얼 포트레이트. 심플한 화이트 리브드 탱크탑에 빈티지한 워싱이 가미된 오버사이즈 그레이 와이드 팬츠를 매치했습니다. 신발은 나이키의 시그니처 스니커즈를 착용하고 있습니다. 바닥에 앉아 한쪽 다리는 굽히고 다른 쪽은 뻗은 채, 카메라를 비껴 옆을 사색적으로 응시하는 포즈를 취하고 있습니다. 배경은 미니멀한 라이트 블루 그라데이션으로 깔끔하고 산뜻한 미학을 보여줍니다.</p>
+        <p class="edit has-copy" contenteditable="true" style="font-size:13.5px;line-height:1.75;color:var(--slide-text-sub)">세련된 이목구비와 길고 어두운 웨이브 헤어를 가진 젊은 여성의 하이패션 에디토리얼 포트레이트. 심플한 화이트 리브드 탱크탑에 빈티지한 워싱이 가미된 오버사이즈 그레이 와이드 팬츠를 매치했습니다. 신발은 나이키의 시그니처 스니커즈를 착용하고 있습니다. 바닥에 앉아 한쪽 다리는 굽히고 다른 쪽은 뻗은 채, 카메라를 비껴 옆을 사색적으로 응시하는 포즈를 취하고 있습니다. 배경은 미니멀한 라이트 블루 그라데이션으로 깔끔하고 산뜻한 미학을 보여줍니다.</p>
         <p class="edit" contenteditable="true" style="font-size:11.5px;color:var(--slide-muted);margin-top:14px">* 왼쪽 위부터 시계방향으로 NanoBanana Pro, Seedream, GPT Image, Midjourney</p>
       </div>
     </div>
@@ -506,7 +613,7 @@ const SLIDES = [
   <div class="slide"><div class="slide-inner">
     <h1 class="page-h1 edit" contenteditable="true">이미지 모델 결과물 비교 (I2I)</h1>
     <p class="page-p edit" contenteditable="true" style="font-weight:700;margin-top:6px">(아래 이미지들을 넣고) 다음 프롬프트 사용:</p>
-    <p class="page-p edit" contenteditable="true" style="color:var(--slide-text-sub);font-size:13.5px;line-height:1.7">전문적인 하이엔드 광고 사진. 자연스러운 짧은 검은 머리와 부드러운 미소를 지닌 한국인 남성(@Image1)이 닥터페퍼 캔(@Image3)을 들고 가리키고 있음. 전체적인 구도와 포즈, 프레이밍은 제공된 스케치 가이드(@Image2)를 엄격히 따름. 미니멀한 화이트 스튜디오 배경, 부드러운 시네마틱 조명, 8k 해상도, 실사 같은 고해상도 화보 스타일.</p>
+    <p class="page-p edit has-copy" contenteditable="true" style="color:var(--slide-text-sub);font-size:13.5px;line-height:1.7">전문적인 하이엔드 광고 사진. 자연스러운 짧은 검은 머리와 부드러운 미소를 지닌 한국인 남성(@Image1)이 닥터페퍼 캔(@Image3)을 들고 가리키고 있음. 전체적인 구도와 포즈, 프레이밍은 제공된 스케치 가이드(@Image2)를 엄격히 따름. 미니멀한 화이트 스튜디오 배경, 부드러운 시네마틱 조명, 8k 해상도, 실사 같은 고해상도 화보 스타일.</p>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px;flex:1;align-items:center">
       <div style="aspect-ratio:1;background:#f5f5f5;border-radius:6px;overflow:hidden"><img src="${IMG}img-012-066.png" alt="@Image1" style="width:100%;height:100%;object-fit:contain"></div>
       <div style="aspect-ratio:1;background:#f5f5f5;border-radius:6px;overflow:hidden"><img src="${IMG}img-012-068.png" alt="@Image2" style="width:100%;height:100%;object-fit:contain"></div>
@@ -520,7 +627,7 @@ const SLIDES = [
     <h1 class="page-h1 edit" contenteditable="true">이미지 모델 결과물 비교 (I2I)</h1>
     <div class="case-layout">
       <div class="case-body" style="order:-1">
-        <p class="edit" contenteditable="true" style="font-size:13.5px;line-height:1.75;color:var(--slide-text-sub)">전문적인 하이엔드 광고 사진. 자연스러운 짧은 검은 머리와 부드러운 미소를 지닌 한국인 남성(@Image1)이 닥터페퍼 캔(@Image3)을 들고 가리키고 있음. 전체적인 구도와 포즈, 프레이밍은 제공된 스케치 가이드(@Image2)를 엄격히 따름. 미니멀한 화이트 스튜디오 배경, 부드러운 시네마틱 조명, 8k 해상도, 실사 같은 고해상도 화보 스타일.</p>
+        <p class="edit has-copy" contenteditable="true" style="font-size:13.5px;line-height:1.75;color:var(--slide-text-sub)">전문적인 하이엔드 광고 사진. 자연스러운 짧은 검은 머리와 부드러운 미소를 지닌 한국인 남성(@Image1)이 닥터페퍼 캔(@Image3)을 들고 가리키고 있음. 전체적인 구도와 포즈, 프레이밍은 제공된 스케치 가이드(@Image2)를 엄격히 따름. 미니멀한 화이트 스튜디오 배경, 부드러운 시네마틱 조명, 8k 해상도, 실사 같은 고해상도 화보 스타일.</p>
         <p class="edit" contenteditable="true" style="font-size:11.5px;color:var(--slide-muted);margin-top:14px">* 왼쪽 위부터 시계방향으로 NanoBanana Pro 4K, Seedream 4.5, GPT Image 1.5, Flux 2</p>
       </div>
       <div class="img-2x2" style="max-width:520px">
@@ -2177,9 +2284,9 @@ function caseSlide(o){
         <div class="kv edit" contenteditable="true"><b>사용 모델:</b> ${o.model}</div>
         <h4 class="edit" contenteditable="true">사용자 요청(Before):</h4>
         ${refs}
-        <p class="prompt-user edit" contenteditable="true">${o.before}</p>
+        <p class="prompt-user edit has-copy" contenteditable="true">${o.before}</p>
         <h4 class="edit" contenteditable="true" style="color:var(--slide-link)">변환된 프롬프트(After):</h4>
-        <p class="prompt-ai edit" contenteditable="true">${o.after}</p>
+        <p class="prompt-ai edit has-copy" contenteditable="true">${o.after}</p>
       </div>
     </div>
     ${F.replace('{PART}','Part 2.  따라하기')}
@@ -2219,7 +2326,10 @@ function selectSlide(id){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.id===id));
   const content=document.getElementById('content');
   content.innerHTML=slide.html;
-  applyEdits(id);wireEditables(id);
+  applyEdits(id);
+  applyEditMode();
+  wireEditables(id);
+  injectCopyButtons();
   window.scrollTo({top:0,behavior:'smooth'});
   if(location.hash!=='#'+id) history.replaceState(null,'',`#${id}`);
   document.querySelector('.sidebar').classList.remove('open');
@@ -2228,13 +2338,15 @@ function selectSlide(id){
 function applyEdits(id){
   const edits=loadEdits();const slideEdits=edits[id];
   if(!slideEdits) return;
-  document.querySelectorAll('#content [contenteditable="true"]').forEach((el,idx)=>{
+  document.querySelectorAll('#content [contenteditable]').forEach((el,idx)=>{
     if(slideEdits[idx]!==undefined) el.innerHTML=slideEdits[idx];
   });
 }
 
 function wireEditables(id){
+  if(!editMode) return;
   document.querySelectorAll('#content [contenteditable="true"]').forEach((el,idx)=>{
+    if(el._wired) return; el._wired=true;
     el.addEventListener('input',()=>{
       const edits=loadEdits();
       if(!edits[id]) edits[id]={};
@@ -2245,6 +2357,104 @@ function wireEditables(id){
   });
 }
 
+/* ---------- Edit mode ---------- */
+let editMode = sessionStorage.getItem('editMode')==='1';
+function applyEditMode(){
+  document.body.classList.toggle('edit-mode', editMode);
+  document.querySelectorAll('#content [contenteditable]').forEach(el=>{
+    el.setAttribute('contenteditable', editMode?'true':'false');
+  });
+  const lbl=document.getElementById('edit-lbl');
+  const ico=document.getElementById('edit-ico');
+  if(lbl){lbl.textContent = editMode?'잠금':'편집';}
+  if(ico){ico.textContent = editMode?'🔓':'🔒';}
+  const btn=document.getElementById('edit-btn');
+  if(btn) btn.classList.toggle('active', editMode);
+}
+function setEditMode(on){
+  editMode = on;
+  sessionStorage.setItem('editMode', on?'1':'0');
+  applyEditMode();
+  if(on && currentSlideId) wireEditables(currentSlideId);
+}
+
+/* ---------- Login modal ---------- */
+function openLogin(){
+  const m=document.getElementById('login-mask');
+  document.getElementById('login-id').value='';
+  document.getElementById('login-pw').value='';
+  document.getElementById('login-err').textContent='';
+  m.classList.add('open');
+  setTimeout(()=>document.getElementById('login-id').focus(),50);
+}
+function closeLogin(){document.getElementById('login-mask').classList.remove('open');}
+function tryLogin(){
+  const id=document.getElementById('login-id').value.trim();
+  const pw=document.getElementById('login-pw').value;
+  if(id==='snownoon' && pw==='snownoon'){
+    closeLogin();
+    setEditMode(true);
+  } else {
+    document.getElementById('login-err').textContent='ID 또는 비밀번호가 올바르지 않습니다.';
+  }
+}
+document.getElementById('edit-btn').addEventListener('click',()=>{
+  if(editMode) setEditMode(false); else openLogin();
+});
+document.getElementById('login-ok').addEventListener('click',tryLogin);
+document.getElementById('login-cancel').addEventListener('click',closeLogin);
+document.getElementById('login-mask').addEventListener('click',(e)=>{
+  if(e.target.id==='login-mask') closeLogin();
+});
+document.getElementById('login-pw').addEventListener('keydown',(e)=>{if(e.key==='Enter')tryLogin();});
+document.getElementById('login-id').addEventListener('keydown',(e)=>{if(e.key==='Enter')document.getElementById('login-pw').focus();});
+document.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeLogin();});
+
+/* ---------- Theme ---------- */
+let theme = localStorage.getItem('theme') || 'dark';
+function applyTheme(){
+  document.body.classList.toggle('light', theme==='light');
+  const lbl=document.getElementById('theme-lbl');
+  const ico=document.getElementById('theme-ico');
+  if(lbl){lbl.textContent = theme==='light'?'다크':'라이트';}
+  if(ico){ico.textContent = theme==='light'?'☾':'☀';}
+}
+document.getElementById('theme-btn').addEventListener('click',()=>{
+  theme = theme==='light'?'dark':'light';
+  localStorage.setItem('theme',theme);
+  applyTheme();
+});
+
+/* ---------- Copy button injection ---------- */
+function injectCopyButtons(){
+  document.querySelectorAll('#content .has-copy').forEach(el=>{
+    if(el.querySelector(':scope > .copy-btn-inline')) return;
+    const btn=document.createElement('button');
+    btn.className='copy-btn-inline';
+    btn.type='button';
+    btn.textContent='복사';
+    btn.setAttribute('contenteditable','false');
+    btn.addEventListener('mousedown',e=>e.preventDefault());
+    btn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      const clone=el.cloneNode(true);
+      clone.querySelectorAll('.copy-btn-inline').forEach(b=>b.remove());
+      const text=(clone.innerText||clone.textContent||'').trim();
+      navigator.clipboard.writeText(text).then(()=>{
+        btn.classList.add('ok');
+        btn.textContent='복사됨!';
+        setTimeout(()=>{btn.textContent='복사';btn.classList.remove('ok');},1400);
+      }).catch(()=>{
+        btn.textContent='실패';
+        setTimeout(()=>{btn.textContent='복사';},1400);
+      });
+    });
+    el.appendChild(btn);
+  });
+}
+
+/* ---------- Init ---------- */
+applyTheme();
 renderNav();
 const hashId=location.hash.slice(1);
 selectSlide(SLIDES.find(s=>s.id===hashId)?.id || SLIDES[0].id);
